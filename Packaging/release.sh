@@ -1,13 +1,13 @@
 #!/bin/bash
 # Publishes a new version that installed copies update to by themselves: sets the version, builds,
-# zips, commits, tags, pushes and creates the GitHub release the app's updater reads.
+# zips, commits, tags, pushes and creates the GitHub release the app's updater reads. The release
+# notes are the version's section of CHANGELOG.md, which the app also shows as What's New.
 #
-# Usage: Packaging/release.sh 1.2.0 "What changed"
+# Usage: Packaging/release.sh 1.2.0
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 VERSION="${1:-}"
-NOTES="${2:-}"
 REPO="edisadk-pm/MacPaperEngine"
 
 if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
@@ -20,6 +20,16 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
     echo "v$VERSION already exists." >&2
+    exit 1
+fi
+
+# The section under "## 1.2.0 — date", up to the next heading, without leading blank lines.
+NOTES=$(awk -v v="$VERSION" '
+    /^## / { if (found) exit; split(substr($0, 4), heading, " — "); found = (heading[1] == v); next }
+    found { print }
+' CHANGELOG.md | sed -e '/./,$!d')
+if [[ -z "${NOTES//[[:space:]]/}" ]]; then
+    echo "Add a \"## $VERSION — date\" section to CHANGELOG.md first. It's the release notes and the app's What's New." >&2
     exit 1
 fi
 
@@ -42,6 +52,6 @@ git commit -q -am "Release $VERSION"
 git tag "v$VERSION"
 git push -q origin HEAD "v$VERSION"
 gh release create "v$VERSION" "$ZIP" "$ZIP.sha256" --repo "$REPO" \
-    --title "MacPaperEngine $VERSION" --notes "${NOTES:-MacPaperEngine $VERSION}"
+    --title "MacPaperEngine $VERSION" --notes "$NOTES"
 
-echo "Released $VERSION. Installed copies pick it up within six hours, or at once with Check for Updates."
+echo "Released $VERSION. Installed copies pick it up the next time they open, or at once with Check for Updates."

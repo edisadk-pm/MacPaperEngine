@@ -74,7 +74,6 @@ final class Updater: ObservableObject {
         static let introSeen = "updateIntroSeen"
         static let lastChecked = "updateLastChecked"
         static let lastRunVersion = "lastRunVersion"
-        static let stagedNotes = "updateNotes"
     }
 
     nonisolated static let currentVersion =
@@ -167,9 +166,9 @@ final class Updater: ObservableObject {
         let previous = defaults.string(forKey: Key.lastRunVersion)
         defaults.set(version, forKey: Key.lastRunVersion)
         guard let previous, Self.isNewer(version, than: previous) else { return }
-        let saved = defaults.dictionary(forKey: Key.stagedNotes) as? [String: String]
-        defaults.removeObject(forKey: Key.stagedNotes)
-        let notes = saved?["version"] == version ? saved?["notes"] ?? "" : ""
+        // The summary line of this version's section in the bundled changelog.
+        let entry = Changelog.entry(for: version)
+        let notes = entry?.summary ?? entry?.items.first ?? ""
         whatsNew = WhatsNew(version: version, notes: Self.plainText(notes))
     }
 
@@ -257,7 +256,6 @@ final class Updater: ObservableObject {
 
     struct Release {
         let version: String
-        let notes: String
         let archive: URL
         let checksum: URL
     }
@@ -280,7 +278,7 @@ final class Updater: ObservableObject {
             throw UpdateError.unreadableRelease
         }
         let version = tag.hasPrefix("v") ? String(tag.dropFirst()) : tag
-        return Release(version: version, notes: json["body"] as? String ?? "", archive: archive, checksum: checksum)
+        return Release(version: version, archive: archive, checksum: checksum)
     }
 
     /// Compares dotted version numbers, so 1.10 is newer than 1.9.
@@ -344,8 +342,6 @@ final class Updater: ObservableObject {
         }.value
 
         staged = unpacked
-        // Kept for the sidebar's "Updated to" card on the next launch.
-        defaults.set(["version": release.version, "notes": release.notes], forKey: Key.stagedNotes)
         phase = .ready(version: release.version)
         app?.show(notice: "Version \(release.version) is ready. It installs when you close this window.")
     }

@@ -44,6 +44,7 @@ extension Page {
         case .power: "Power"
         case .general: "General"
         case .stats: "Stats"
+        case .about: "About"
         }
     }
 
@@ -58,6 +59,7 @@ extension Page {
         case .power: "bolt.fill"
         case .general: "gearshape.fill"
         case .stats: "chart.bar.fill"
+        case .about: "info"
         }
     }
 
@@ -72,6 +74,7 @@ extension Page {
         case .power: Theme.green
         case .general: Theme.graphite
         case .stats: Theme.violet
+        case .about: Theme.sky
         }
     }
 }

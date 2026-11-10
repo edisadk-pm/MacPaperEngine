@@ -62,13 +62,17 @@ open build/MacPaperEngine.app
 
 ### Releasing
 
+Add a section for the new version at the top of [CHANGELOG.md](CHANGELOG.md), commit, then:
+
 ```sh
-Packaging/release.sh 1.2.0 "What changed"
+Packaging/release.sh 1.2.0
 ```
 
-The working tree must be clean. The script sets the version in both `Info.plist`s, builds, zips
-`MacPaperEngine.app` with its checksum, commits "Release 1.2.0", tags `v1.2.0`, pushes and creates
-the GitHub release. Installed copies pick it up within six hours.
+The section is the release notes on GitHub and **What's New** on the app's About page; its first
+paragraph is the line the sidebar shows after updating. The script refuses a version without one,
+and needs a clean working tree. It sets the version in both `Info.plist`s, builds, zips
+`MacPaperEngine.app` with its checksum, commits "Release 1.2.0", tags `v1.2.0`, pushes and
+creates the GitHub release. Installed copies pick it up the next time they're opened.
 
 ### Built-in media
 
@@ -102,6 +106,9 @@ be made taller.
 | ⌥⌘→ and ⌥⌘← | Next and previous wallpaper in the current one's tab |
 | ⌘, | Settings |
 | ⌥⌘Q | Quit and stop the wallpaper too. Plain ⌘Q leaves the wallpaper running. |
+
+**About** (also **MacPaperEngine > About MacPaperEngine**) shows the version, What's New for it
+and earlier versions, and credits.
 
 The **Wallpaper** menu also turns the wallpaper off, jumps to the one showing, removes it, and
 switches Play on Lock Screen and Hide Loop Jump.

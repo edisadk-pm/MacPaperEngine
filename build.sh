@@ -27,6 +27,8 @@ if ! xcrun actool Resources/AppIcon.icon --compile "$APP/Contents/Resources" \
     exit 1
 fi
 cp "$APP/Contents/Resources/AppIcon.icns" "$APP/Contents/Resources/Assets.car" "$ENGINE/Contents/Resources/"
+# What's New on the About page.
+cp CHANGELOG.md "$APP/Contents/Resources/"
 
 # -c clones on APFS, so the bundled files take no extra disk space inside the app.
 for bundled in Footage Dynamic; do

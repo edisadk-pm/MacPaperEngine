@@ -17,6 +17,7 @@ struct DetailView: View {
             case .power: PowerPage(model: model)
             case .general: GeneralPage(model: model)
             case .stats: StatsPage(model: model)
+            case .about: AboutPage(model: model)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -77,9 +78,10 @@ struct SidebarView: View {
             SidebarRow(page: .power, model: model)
             SidebarRow(page: .general, model: model)
             SidebarRow(page: .stats, model: model)
+            SidebarRow(page: .about, model: model)
 
             Spacer(minLength: 12)
-            UpdateSidebarCard(updater: model.updater)
+            UpdateSidebarCard(updater: model.updater) { model.page = .about }
             NowPlayingCard(model: model)
         }
         .padding(.top, 2)

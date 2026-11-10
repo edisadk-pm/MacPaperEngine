@@ -8,8 +8,8 @@ final class MainMenu: NSObject, NSMenuItemValidation {
     private let model: AppModel
     var toolbar: MainToolbar?
 
-    /// View menu order, which is also ⌘1 to ⌘9.
-    private static let pages: [Page] = [.videos, .dynamic, .pictures, .online, .displays, .playback, .power, .general, .stats]
+    /// View menu order. The first nine are also ⌘1 to ⌘9.
+    private static let pages: [Page] = [.videos, .dynamic, .pictures, .online, .displays, .playback, .power, .general, .stats, .about]
 
     init(model: AppModel) {
         self.model = model
@@ -36,7 +36,7 @@ final class MainMenu: NSObject, NSMenuItemValidation {
 
     private func appMenu() -> NSMenu {
         let menu = NSMenu(title: "MacPaperEngine")
-        menu.addItem(standard("About MacPaperEngine", #selector(NSApplication.orderFrontStandardAboutPanel(_:))))
+        menu.addItem(item("About MacPaperEngine", #selector(showAbout)))
         menu.addItem(item("Check for Updates…", #selector(checkForUpdates)))
         menu.addItem(.separator())
         menu.addItem(item("Settings…", #selector(openSettings), key: ","))
@@ -88,7 +88,7 @@ final class MainMenu: NSObject, NSMenuItemValidation {
         menu.addItem(item("Forward", #selector(goForward), key: "]"))
         menu.addItem(.separator())
         for (position, page) in Self.pages.enumerated() {
-            let entry = item(page.title, #selector(showPage(_:)), key: String(position + 1))
+            let entry = item(page.title, #selector(showPage(_:)), key: position < 9 ? String(position + 1) : "")
             entry.tag = position
             entry.image = NSImage(systemSymbolName: page.symbol, accessibilityDescription: nil)
             menu.addItem(entry)
@@ -210,6 +210,7 @@ final class MainMenu: NSObject, NSMenuItemValidation {
     // MARK: - Actions
 
     @objc private func openSettings() { model.page = .general }
+    @objc private func showAbout() { model.page = .about }
 
     @objc private func checkForUpdates() {
         model.page = .general

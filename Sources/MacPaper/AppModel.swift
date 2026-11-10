@@ -5,7 +5,7 @@ import ServiceManagement
 import UniformTypeIdentifiers
 
 enum Page: String, CaseIterable, Identifiable {
-    case videos, dynamic, pictures, online, displays, playback, power, general, stats
+    case videos, dynamic, pictures, online, displays, playback, power, general, stats, about
     var id: String { rawValue }
 
     init(_ category: Wallpaper.Category) {
@@ -25,13 +25,8 @@ enum Page: String, CaseIterable, Identifiable {
         }
     }
 
-    /// Pages saved by older versions.
     static func restored(_ raw: String?) -> Page {
-        switch raw {
-        case "about": .general
-        case let raw?: Page(rawValue: raw) ?? .videos
-        case nil: .videos
-        }
+        raw.flatMap(Page.init(rawValue:)) ?? .videos
     }
 }
 

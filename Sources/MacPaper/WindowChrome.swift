@@ -169,6 +169,8 @@ final class MainToolbar: NSObject, NSToolbarDelegate, NSSearchFieldDelegate {
             page.category.map { model.count($0) }.map { $0 == 1 ? "1 wallpaper" : "\($0) wallpapers" } ?? ""
         case .online:
             model.online.kind == .pictures ? "Pictures from Wallhaven" : "Videos from Pexels"
+        case .about:
+            "Version \(Updater.currentVersion)"
         default:
             ""
         }

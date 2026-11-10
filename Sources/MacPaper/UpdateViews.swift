@@ -148,6 +148,8 @@ private struct ModeOption: View {
 /// rest of the time.
 struct UpdateSidebarCard: View {
     @ObservedObject var updater: Updater
+    /// Opens What's New on the About page.
+    var showWhatsNew: () -> Void
 
     var body: some View {
         Group {
@@ -155,7 +157,9 @@ struct UpdateSidebarCard: View {
             case .available(let version) where updater.snoozedVersion != version:
                 SidebarNote(symbol: "arrow.down", title: "Update Available",
                             text: "Version \(version) is out.",
-                            link: ("What's new", updater.releasePage(for: version))) {
+                            link: NoteLink(title: "What's new", external: true) {
+                                NSWorkspace.shared.open(updater.releasePage(for: version))
+                            }) {
                     QuietButton(title: "Download", prominent: true) { updater.downloadAvailable() }
                     QuietButton(title: "Later") { updater.snooze() }
                 }
@@ -176,7 +180,7 @@ struct UpdateSidebarCard: View {
                 if let whatsNew = updater.whatsNew {
                     SidebarNote(symbol: "sparkles", title: "Updated to \(whatsNew.version)",
                                 text: whatsNew.notes.isEmpty ? nil : whatsNew.notes,
-                                link: ("Release notes", updater.releasePage(for: whatsNew.version))) {
+                                link: NoteLink(title: "What's new", external: false, action: showWhatsNew)) {
                         QuietButton(title: "OK") { updater.dismissWhatsNew() }
                     }
                 }
@@ -187,11 +191,18 @@ struct UpdateSidebarCard: View {
     }
 }
 
+private struct NoteLink {
+    let title: String
+    /// Opens a web page, rather than a page of this window.
+    let external: Bool
+    let action: () -> Void
+}
+
 private struct SidebarNote<Actions: View>: View {
     let symbol: String
     let title: String
     var text: String?
-    var link: (title: String, url: URL)?
+    var link: NoteLink?
     @ViewBuilder var actions: Actions
 
     var body: some View {
@@ -211,11 +222,13 @@ private struct SidebarNote<Actions: View>: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             if let link {
-                Link(destination: link.url) {
-                    Text("\(link.title) \(Image(systemName: "arrow.up.forward"))")
+                Button(action: link.action) {
+                    Text("\(link.title) \(Image(systemName: link.external ? "arrow.up.forward" : "chevron.forward"))")
                         .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Theme.accent)
+                        .contentShape(Rectangle())
                 }
-                .foregroundStyle(Theme.accent)
+                .buttonStyle(.plain)
                 .padding(.top, -3)
             }
             HStack(spacing: 6) { actions }

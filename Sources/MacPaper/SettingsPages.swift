@@ -214,9 +214,6 @@ struct GeneralPage: View {
 
             SectionLabel("Updates")
             UpdatesCard(updater: model.updater)
-
-            SectionLabel("About")
-            AboutCard()
         }
         .onAppear { model.refreshMeasurements() }
     }
@@ -302,34 +299,6 @@ private struct FavouriteRow: View {
                     .fill((colors.first ?? .white).opacity(0.28))
                     .frame(width: max(proxy.size.width * share, 20))
             }
-        }
-    }
-}
-
-struct AboutCard: View {
-    private var version: String {
-        (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.0"
-    }
-
-    var body: some View {
-        Card {
-            HStack(alignment: .top, spacing: 14) {
-                Image(nsImage: NSApp.applicationIconImage)
-                    .resizable()
-                    .frame(width: 56, height: 56)
-                VStack(alignment: .leading, spacing: 3) {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text("MacPaperEngine").font(.system(size: 14, weight: .semibold)).foregroundStyle(Theme.primary)
-                        Text("Version \(version)").font(.system(size: 11)).foregroundStyle(Theme.secondary)
-                    }
-                    Text("Wallpapers that stay out of your memory. MacPaperEngine draws above your system wallpaper, which returns when it stops. Only Play on Lock Screen changes it, and turning that off restores it.")
-                        .font(.system(size: 12))
-                        .foregroundStyle(Theme.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(14)
         }
     }
 }

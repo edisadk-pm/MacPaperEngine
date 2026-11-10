@@ -32,17 +32,24 @@ Privacy & Security** and click **Open Anyway** next to MacPaperEngine. Only that
 ## Updates
 
 MacPaperEngine updates itself from this repository's
-[releases](https://github.com/edisadk-pm/MacPaperEngine/releases). Every six hours, and whenever you
-choose **MacPaperEngine > Check for Updates…**, the window looks for a newer version. It downloads
-it in the background and checks it before keeping it: the SHA-256 checksum published with the
-release, the bundle identifier, the version and the code signature. The new version is swapped in
-when you close the window, and the wallpaper is back within a second or two. **Restart Now** in
-**General > Updates** installs it straight away. Turn off **Install Updates Automatically** there
-to be asked first.
+[releases](https://github.com/edisadk-pm/MacPaperEngine/releases). The first time you open it, a
+sheet says so and asks how far it should go:
+
+| Choice | Does |
+| --- | --- |
+| **Automatic** (recommended) | Checks each time you open the window, downloads a new version in the background, and installs it when you close the window |
+| **Ask First** | Checks each time you open the window, and asks before downloading |
+| **Manual** | Looks only when you choose **MacPaperEngine > Check for Updates…** |
+
+You can change it later in **General > Updates**. Before a download is kept, it's checked against
+the SHA-256 checksum published with the release, the app's bundle identifier, the version and the
+code signature. When it's ready, the sidebar says so and offers **Restart Now**; otherwise it's
+swapped in when you close the window, and the wallpaper is back within a second or two. The next
+time you open the app, the sidebar says what's new.
 
 Only copies in an `Applications` folder update. A build run from `build/`, or against a test library
-with `MACPAPER_HOME`, never does. `MACPAPER_UPDATE_FEED` points the updater at another release feed
-for testing.
+with `MACPAPER_HOME`, never does, unless `MACPAPER_UPDATE_FEED` points it at a test feed. Its update
+settings are then kept apart from the installed app's.
 
 ## Build and run
 

@@ -306,52 +306,6 @@ private struct FavouriteRow: View {
     }
 }
 
-struct UpdatesCard: View {
-    @ObservedObject var updater: Updater
-
-    private var status: String {
-        guard updater.isAvailable else { return "Development build: updates are off" }
-        switch updater.phase {
-        case .idle: return updater.lastChecked.map { "Last checked \($0.formatted(.relative(presentation: .named)))" } ?? "Not checked yet"
-        case .checking: return "Checking…"
-        case .upToDate: return "Up to date"
-        case .available(let version): return "Version \(version) is available"
-        case .downloading(let version, let progress): return "Downloading \(version)… \(Int(progress * 100))%"
-        case .ready(let version): return "Version \(version) installs when you close this window"
-        case .installing: return "Installing…"
-        case .failed(let message): return message
-        }
-    }
-
-    var body: some View {
-        Card {
-            Row(symbol: "arrow.triangle.2.circlepath", colors: Theme.sky, title: "Version \(updater.version)",
-                subtitle: status) {
-                switch updater.phase {
-                case .ready:
-                    QuietButton(title: "Restart Now", prominent: true) { updater.installNow() }
-                case .available:
-                    QuietButton(title: "Download", prominent: true) { updater.downloadAvailable() }
-                case .checking, .downloading, .installing:
-                    ProgressView().controlSize(.small)
-                default:
-                    QuietButton(title: "Check Now") { updater.check(userInitiated: true) }
-                        .disabled(!updater.isAvailable)
-                }
-            }
-            RowDivider()
-            Row(symbol: "arrow.down.app.fill", title: "Install Updates Automatically",
-                subtitle: "Downloads in the background and installs when you close the window") {
-                Switch(isOn: $updater.installsAutomatically)
-            }
-            RowDivider()
-            Row(symbol: "link", title: "Release Notes") {
-                QuietButton(title: "Open") { NSWorkspace.shared.open(Updater.releasesPage) }
-            }
-        }
-    }
-}
-
 struct AboutCard: View {
     private var version: String {
         (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.0"

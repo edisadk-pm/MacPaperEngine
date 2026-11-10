@@ -30,6 +30,7 @@ struct DetailView: View {
         .animation(.snappy(duration: 0.25), value: model.notice)
         .background(Theme.tint.ignoresSafeArea())
         .preferredColorScheme(.dark)
+        .modifier(UpdateIntroPresenter(updater: model.updater))
         .alert("MacPaperEngine", isPresented: Binding(get: { model.alert != nil }, set: { if !$0 { model.alert = nil } })) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -78,6 +79,7 @@ struct SidebarView: View {
             SidebarRow(page: .stats, model: model)
 
             Spacer(minLength: 12)
+            UpdateSidebarCard(updater: model.updater)
             NowPlayingCard(model: model)
         }
         .padding(.top, 2)

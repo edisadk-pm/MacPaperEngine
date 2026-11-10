@@ -116,8 +116,8 @@ final class AppModel: ObservableObject {
         smoothLoopsIfNeeded()
         fetchWallpapersInUse()
         restoreLoginItem()
-        // Left a moment so the window is up before any network traffic.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in self?.updater.checkIfDue() }
+        // Left a moment so the window is up first. The first time, this asks how to update.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in self?.updater.start() }
     }
 
     // MARK: - Engine

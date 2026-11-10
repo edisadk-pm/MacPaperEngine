@@ -1,0 +1,50 @@
+[
+ {
+  "id": "footage.prism",
+  "name": "Prism",
+  "file": "prism.mp4",
+  "width": 2958,
+  "height": 1664,
+  "duration": 120.0
+ },
+ {
+  "id": "footage.crimson",
+  "name": "Crimson",
+  "file": "crimson.mp4",
+  "width": 2958,
+  "height": 1664,
+  "duration": 120.0
+ },
+ {
+  "id": "footage.silver-rings",
+  "name": "Silver Rings",
+  "file": "silver-rings.mp4",
+  "width": 2958,
+  "height": 1664,
+  "duration": 120.0
+ },
+ {
+  "id": "footage.diamond",
+  "name": "Diamond",
+  "file": "diamond.mp4",
+  "width": 2958,
+  "height": 1664,
+  "duration": 120.0
+ },
+ {
+  "id": "footage.starburst",
+  "name": "Starburst",
+  "file": "starburst.mp4",
+  "width": 2958,
+  "height": 1664,
+  "duration": 120.0
+ },
+ {
+  "id": "footage.threads",
+  "name": "Threads",
+  "file": "threads.mp4",
+  "width": 2958,
+  "height": 1664,
+  "duration": 120.0
+ }
+]

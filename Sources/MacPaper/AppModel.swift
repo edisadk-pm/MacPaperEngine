@@ -55,6 +55,10 @@ final class AppModel: ObservableObject {
     @Published private(set) var importing = 0
     /// Smooth-loop copies being made, by wallpaper, from 0 to 1.
     @Published private(set) var smoothing: [String: Double] = [:]
+    /// Built-ins being downloaded, by wallpaper, from 0 to 1.
+    @Published private(set) var fetching: [String: Double] = [:]
+    @Published private(set) var includedBytes: Int64 = 0
+    private var fetchTasks: [String: Task<Void, Never>] = [:]
     @Published private(set) var libraryBytes: Int64 = 0
     @Published var page = Page.restored(UserDefaults.standard.string(forKey: "page")) {
         didSet {
@@ -105,6 +109,7 @@ final class AppModel: ObservableObject {
         })
         IPC.post(IPC.statusRequested)
         smoothLoopsIfNeeded()
+        fetchWallpapersInUse()
     }
 
     // MARK: - Engine
@@ -148,6 +153,7 @@ final class AppModel: ObservableObject {
         engineFootprint = engineApp.flatMap { ProcessMemory.footprint(pid: $0.processIdentifier) }
         decoderFootprint = engineApp.map { ProcessMemory.decoderFootprint(for: $0.processIdentifier) }
         windowFootprint = ProcessMemory.footprint(pid: ProcessInfo.processInfo.processIdentifier)
+        refreshIncludedBytes()
         stats = Store.loadStats()
         libraryBytes = state.library.reduce(0) { total, wallpaper in
             total + [wallpaper.fileURL, wallpaper.smoothLoopURL].compactMap { $0 }.reduce(0) { sum, url in
@@ -206,7 +212,8 @@ final class AppModel: ObservableObject {
         let position = currentWallpaper.flatMap { current in list.firstIndex { $0.id == current.id } }
         let next = position.map { ($0 + offset + list.count) % list.count } ?? (offset > 0 ? 0 : list.count - 1)
         apply(list[next])
-        show(notice: "Now showing “\(list[next].name)”")
+        // A download announces itself when it lands.
+        if list[next].isDownloaded { show(notice: "Now showing “\(list[next].name)”") }
     }
 
     var isPausedByUser: Bool { status.pausedByUser == true }
@@ -271,6 +278,11 @@ final class AppModel: ObservableObject {
     }
 
     func toggle(_ wallpaper: Wallpaper) {
+        // A built-in not here yet is downloaded first, and applied once it arrives.
+        if wallpaper.needsDownload {
+            fetch(wallpaper, apply: true)
+            return
+        }
         let turnOff = isActive(wallpaper)
         mutate { state in
             if let target = assignmentTarget {
@@ -285,6 +297,94 @@ final class AppModel: ObservableObject {
 
     func apply(_ wallpaper: Wallpaper) {
         if !isActive(wallpaper) { toggle(wallpaper) }
+    }
+
+    // MARK: - Built-ins, downloaded on first use
+
+    func fetch(_ wallpaper: Wallpaper, apply: Bool) {
+        guard wallpaper.needsDownload, fetchTasks[wallpaper.id] == nil,
+              let remote = wallpaper.remoteURL, let local = wallpaper.fileURL else { return }
+        fetching[wallpaper.id] = 0
+        fetchTasks[wallpaper.id] = Task { [weak self] in
+            defer {
+                self?.fetchTasks[wallpaper.id] = nil
+                self?.fetching[wallpaper.id] = nil
+            }
+            do {
+                let file = try await OnlineHTTP.download(remote) { fraction in
+                    self?.fetching[wallpaper.id] = min(fraction, 0.99)
+                }
+                // A cut-off download would otherwise sit there looking like the real file.
+                let size = (try FileManager.default.attributesOfItem(atPath: file.path)[.size] as? NSNumber)?.intValue
+                if let expected = wallpaper.downloadSize, size != expected {
+                    try? FileManager.default.removeItem(at: file)
+                    throw OnlineError.unreadable(provider: "The download")
+                }
+                Paths.prepare()
+                try? FileManager.default.removeItem(at: local)
+                try FileManager.default.moveItem(at: file, to: local)
+                guard let self else { return }
+                self.refreshIncludedBytes()
+                if apply {
+                    self.apply(wallpaper)
+                    self.show(notice: "Now showing “\(wallpaper.name)”")
+                } else {
+                    // The engine may be waiting for this file because it's already selected.
+                    IPC.post(IPC.settingsChanged)
+                    self.show(notice: "Downloaded “\(wallpaper.name)”")
+                }
+            } catch is CancellationError {
+            } catch {
+                self?.alert = "“\(wallpaper.name)” couldn't be downloaded. \(error.localizedDescription)"
+            }
+        }
+    }
+
+    func cancelFetch(_ wallpaper: Wallpaper) {
+        fetchTasks[wallpaper.id]?.cancel()
+    }
+
+    /// A wallpaper already selected but not on this Mac (after an update, say) is fetched now,
+    /// and shows up on the desktop as soon as it arrives.
+    private func fetchWallpapersInUse() {
+        let selected = Set([settings.sharedWallpaper].compactMap { $0 } + settings.perDisplay.values)
+        for id in selected {
+            if let wallpaper = state.wallpaper(id: id), wallpaper.needsDownload {
+                fetch(wallpaper, apply: false)
+            }
+        }
+    }
+
+    /// Frees the space a downloaded built-in takes. It can be downloaded again any time.
+    func removeDownload(_ wallpaper: Wallpaper) {
+        guard wallpaper.isBuiltIn, let local = wallpaper.fileURL, wallpaper.isDownloaded else { return }
+        if isOnScreen(wallpaper) {
+            mutate { state in
+                if state.settings.sharedWallpaper == wallpaper.id { state.settings.sharedWallpaper = nil }
+                state.settings.perDisplay = state.settings.perDisplay.filter { $0.value != wallpaper.id }
+            }
+        }
+        try? FileManager.default.removeItem(at: local)
+        refreshIncludedBytes()
+        show(notice: "Removed the download of “\(wallpaper.name)”")
+    }
+
+    /// Removes every downloaded built-in that isn't on screen.
+    func removeUnusedDownloads() {
+        for wallpaper in FootageCatalog.all + IncludedDynamicCatalog.all
+        where wallpaper.isDownloaded && !isOnScreen(wallpaper) {
+            if let local = wallpaper.fileURL { try? FileManager.default.removeItem(at: local) }
+        }
+        refreshIncludedBytes()
+        show(notice: "Removed downloads not in use")
+    }
+
+    func refreshIncludedBytes() {
+        includedBytes = (FootageCatalog.all + IncludedDynamicCatalog.all).reduce(0) { total, wallpaper in
+            guard wallpaper.isDownloaded, let url = wallpaper.fileURL,
+                  let size = (try? FileManager.default.attributesOfItem(atPath: url.path))?[.size] as? NSNumber else { return total }
+            return total + size.int64Value
+        }
     }
 
     /// Asks before removing, since the library's copy of the file is deleted. The question can
@@ -329,7 +429,7 @@ final class AppModel: ObservableObject {
     }
 
     /// On any display, not just the one being edited.
-    private func isOnScreen(_ wallpaper: Wallpaper) -> Bool {
+    func isOnScreen(_ wallpaper: Wallpaper) -> Bool {
         settings.sharedWallpaper == wallpaper.id || settings.perDisplay.values.contains(wallpaper.id)
     }
 

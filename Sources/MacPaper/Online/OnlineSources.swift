@@ -102,7 +102,8 @@ enum OnlineHTTP {
                         }
                         return
                     }
-                    let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                    // Non-HTTP sources, such as a local folder in development, have no status.
+                    let status = (response as? HTTPURLResponse)?.statusCode ?? 200
                     guard (200..<300).contains(status), let temporary else {
                         continuation.resume(throwing: OnlineError.server(provider: url.host ?? "The server", status: status))
                         return

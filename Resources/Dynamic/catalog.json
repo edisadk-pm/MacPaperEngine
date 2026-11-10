@@ -1,44 +1,42 @@
 [
- {
-  "id": "included.alps",
-  "name": "Alps",
-  "file": "alps.heic",
-  "width": 5120,
-  "height": 2880
- },
- {
-  "id": "included.monterey",
-  "name": "Monterey",
-  "file": "monterey.heic",
-  "width": 6048,
-  "height": 3402
- },
- {
-  "id": "included.fuji",
-  "name": "Fuji",
-  "file": "fuji.heic",
-  "width": 5719,
-  "height": 3720
- },
- {
-  "id": "included.cyprus",
-  "name": "Cyprus",
-  "file": "cyprus.heic",
-  "width": 3000,
-  "height": 2000
- },
- {
-  "id": "included.dome",
-  "name": "Dome",
-  "file": "dome.heic",
-  "width": 6016,
-  "height": 6016
- },
- {
-  "id": "included.fletschhorn",
-  "name": "Fletschhorn",
-  "file": "fletschhorn.heic",
-  "width": 5174,
-  "height": 3266
- }
+  {
+    "bytes" : 80980812,
+    "file" : "alps.heic",
+    "height" : 2880,
+    "id" : "included.alps",
+    "name" : "Alps",
+    "width" : 5120
+  },
+  {
+    "bytes" : 9239516,
+    "file" : "fuji.heic",
+    "height" : 3720,
+    "id" : "included.fuji",
+    "name" : "Fuji",
+    "width" : 5719
+  },
+  {
+    "bytes" : 3160572,
+    "file" : "cyprus.heic",
+    "height" : 2000,
+    "id" : "included.cyprus",
+    "name" : "Cyprus",
+    "width" : 3000
+  },
+  {
+    "bytes" : 7632011,
+    "file" : "dome.heic",
+    "height" : 6016,
+    "id" : "included.dome",
+    "name" : "Dome",
+    "width" : 6016
+  },
+  {
+    "bytes" : 30876512,
+    "file" : "fletschhorn.heic",
+    "height" : 3266,
+    "id" : "included.fletschhorn",
+    "name" : "Fletschhorn",
+    "width" : 5174
+  }
 ]

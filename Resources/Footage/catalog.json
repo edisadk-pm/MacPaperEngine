@@ -1,50 +1,56 @@
 [
- {
-  "id": "footage.prism",
-  "name": "Prism",
-  "file": "prism.mp4",
-  "width": 2958,
-  "height": 1664,
-  "duration": 120.0
- },
- {
-  "id": "footage.crimson",
-  "name": "Crimson",
-  "file": "crimson.mp4",
-  "width": 2958,
-  "height": 1664,
-  "duration": 120.0
- },
- {
-  "id": "footage.silver-rings",
-  "name": "Silver Rings",
-  "file": "silver-rings.mp4",
-  "width": 2958,
-  "height": 1664,
-  "duration": 120.0
- },
- {
-  "id": "footage.diamond",
-  "name": "Diamond",
-  "file": "diamond.mp4",
-  "width": 2958,
-  "height": 1664,
-  "duration": 120.0
- },
- {
-  "id": "footage.starburst",
-  "name": "Starburst",
-  "file": "starburst.mp4",
-  "width": 2958,
-  "height": 1664,
-  "duration": 120.0
- },
- {
-  "id": "footage.threads",
-  "name": "Threads",
-  "file": "threads.mp4",
-  "width": 2958,
-  "height": 1664,
-  "duration": 120.0
- }
+  {
+    "bytes" : 131011076,
+    "duration" : 120,
+    "file" : "prism.mp4",
+    "height" : 1664,
+    "id" : "footage.prism",
+    "name" : "Prism",
+    "width" : 2958
+  },
+  {
+    "bytes" : 109251556,
+    "duration" : 120,
+    "file" : "crimson.mp4",
+    "height" : 1664,
+    "id" : "footage.crimson",
+    "name" : "Crimson",
+    "width" : 2958
+  },
+  {
+    "bytes" : 243847536,
+    "duration" : 120,
+    "file" : "silver-rings.mp4",
+    "height" : 1664,
+    "id" : "footage.silver-rings",
+    "name" : "Silver Rings",
+    "width" : 2958
+  },
+  {
+    "bytes" : 62673625,
+    "duration" : 120,
+    "file" : "diamond.mp4",
+    "height" : 1664,
+    "id" : "footage.diamond",
+    "name" : "Diamond",
+    "width" : 2958
+  },
+  {
+    "bytes" : 112003131,
+    "duration" : 120,
+    "file" : "starburst.mp4",
+    "height" : 1664,
+    "id" : "footage.starburst",
+    "name" : "Starburst",
+    "width" : 2958
+  },
+  {
+    "bytes" : 173565027,
+    "duration" : 120,
+    "file" : "threads.mp4",
+    "height" : 1664,
+    "id" : "footage.threads",
+    "name" : "Threads",
+    "width" : 2958
+  }
 ]

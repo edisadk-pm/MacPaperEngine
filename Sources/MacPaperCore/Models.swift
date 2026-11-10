@@ -56,10 +56,12 @@ public struct Wallpaper: Codable, Hashable, Identifiable {
     /// True for videos that were imported as a GIF, WebP or APNG.
     public var animated: Bool?
     public var source: Source?
+    /// For built-ins, the size of the file downloaded the first time it's used.
+    public var downloadSize: Int?
 
     public init(id: String, name: String, kind: Kind, file: String? = nil,
                 width: Int = 0, height: Int = 0, duration: Double = 0,
-                animated: Bool? = nil, source: Source? = nil) {
+                animated: Bool? = nil, source: Source? = nil, downloadSize: Int? = nil) {
         self.id = id
         self.name = name
         self.kind = kind
@@ -69,6 +71,7 @@ public struct Wallpaper: Codable, Hashable, Identifiable {
         self.duration = duration
         self.animated = animated
         self.source = source
+        self.downloadSize = downloadSize
     }
 
     /// Ships with the app, so it can't be removed from the library.
@@ -77,8 +80,42 @@ public struct Wallpaper: Codable, Hashable, Identifiable {
     /// A dynamic wallpaper that ships with MacPaper.
     public var isIncluded: Bool { id.hasPrefix(IncludedDynamicCatalog.idPrefix) }
 
-    /// Only things the user added can be removed.
-    public var isRemovable: Bool { !isBuiltInFootage && !isIncluded }
+    /// Ships with MacPaper as a preview, and is downloaded the first time it's used.
+    public var isBuiltIn: Bool { isBuiltInFootage || isIncluded }
+
+    /// Only things the user added can be removed. Built-ins can only have their download removed.
+    public var isRemovable: Bool { !isBuiltIn }
+
+    /// Built-ins are on this Mac once downloaded. Everything else always is.
+    public var isDownloaded: Bool {
+        guard isBuiltIn else { return true }
+        return fileURL.map { FileManager.default.fileExists(atPath: $0.path) } ?? false
+    }
+
+    public var needsDownload: Bool { !isDownloaded }
+
+    /// Where a built-in is downloaded from.
+    public var remoteURL: URL? {
+        guard isBuiltIn, let file else { return nil }
+        return IncludedMedia.baseURL.appendingPathComponent(file)
+    }
+
+    /// The tile picture that ships in the app for a built-in.
+    public var previewImageURL: URL? {
+        guard isBuiltIn, let file else { return nil }
+        let folder = isIncluded ? Paths.includedDynamic : Paths.footage
+        return folder.appendingPathComponent("previews/\((file as NSString).deletingPathExtension).jpg")
+    }
+
+    /// Where to read a dynamic wallpaper's schedule and pictures: the file once it's here, and
+    /// for a built-in not yet downloaded, the small copy that ships in the app.
+    public var dynamicSourceURL: URL? {
+        guard kind == .dynamic else { return nil }
+        if isIncluded, !isDownloaded, let file {
+            return Paths.includedDynamic.appendingPathComponent("previews/\(file)")
+        }
+        return fileURL
+    }
 
     /// Videos move. Pictures and dynamic wallpapers are drawn once and left alone.
     public var isAnimated: Bool { kind == .video }
@@ -93,9 +130,9 @@ public struct Wallpaper: Codable, Hashable, Identifiable {
 
     public var fileURL: URL? {
         guard let file else { return nil }
+        if isBuiltIn { return Paths.included.appendingPathComponent(file) }
         switch kind {
-        case .video: return (isBuiltInFootage ? Paths.footage : Paths.videos).appendingPathComponent(file)
-        case .dynamic where isIncluded: return Paths.includedDynamic.appendingPathComponent(file)
+        case .video: return Paths.videos.appendingPathComponent(file)
         case .image, .dynamic: return Paths.images.appendingPathComponent(file)
         }
     }
@@ -128,6 +165,19 @@ public struct FootageClip: Codable, Identifiable, Hashable {
     public let width: Int
     public let height: Int
     public let duration: Double?
+    public let bytes: Int?
+}
+
+/// The built-in clips and dynamic wallpapers are hosted online and fetched when first used,
+/// which keeps the app a few megabytes instead of about a gigabyte.
+public enum IncludedMedia {
+    /// `MACPAPER_MEDIA_URL` points a development build somewhere else, such as a local folder.
+    public static let baseURL: URL = {
+        if let override = ProcessInfo.processInfo.environment["MACPAPER_MEDIA_URL"], let url = URL(string: override) {
+            return url
+        }
+        return URL(string: "https://github.com/edisadk-pm/macpaper-media/releases/download/media-1/")!
+    }()
 }
 
 public enum FootageCatalog {
@@ -140,7 +190,7 @@ public enum FootageCatalog {
 
     public static let all: [Wallpaper] = clips.map {
         Wallpaper(id: $0.id, name: $0.name, kind: .video, file: $0.file,
-                  width: $0.width, height: $0.height, duration: $0.duration ?? 0)
+                  width: $0.width, height: $0.height, duration: $0.duration ?? 0, downloadSize: $0.bytes)
     }
 }
 
@@ -152,7 +202,8 @@ public enum IncludedDynamicCatalog {
         guard let data = try? Data(contentsOf: Paths.includedDynamic.appendingPathComponent("catalog.json")),
               let entries = try? JSONDecoder().decode([FootageClip].self, from: data) else { return [] }
         return entries.map {
-            Wallpaper(id: $0.id, name: $0.name, kind: .dynamic, file: $0.file, width: $0.width, height: $0.height)
+            Wallpaper(id: $0.id, name: $0.name, kind: .dynamic, file: $0.file, width: $0.width, height: $0.height,
+                      downloadSize: $0.bytes)
         }
     }()
 }

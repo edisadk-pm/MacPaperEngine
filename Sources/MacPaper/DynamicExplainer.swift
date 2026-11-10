@@ -103,7 +103,7 @@ struct DynamicExplainer: View {
         let selected = current.flatMap { $0.kind == .dynamic ? $0 : nil }
         return await Task.detached(priority: .utility) {
             for wallpaper in [selected].compactMap({ $0 }) + list {
-                guard let url = wallpaper.fileURL, let schedule = DynamicSchedule.read(from: url) else { continue }
+                guard let url = wallpaper.dynamicSourceURL, let schedule = DynamicSchedule.read(from: url) else { continue }
                 let isSelected = wallpaper.id == selected?.id
                 if case .appearance(let light, let darkIndex) = schedule.mode {
                     // Only worth showing when it's the one chosen; as a stand-in it explains less.
@@ -217,12 +217,13 @@ private struct FrameThumbnail: View {
             }
             .clipped()
             .task(id: "\(wallpaper.id)#\(index)") {
-                let cached = Paths.thumbnails.appendingPathComponent("\(wallpaper.id).frame\(index).jpg")
+                let cached = Paths.thumbnails.appendingPathComponent(
+                    "\(wallpaper.id).frame\(index)\(wallpaper.isDownloaded ? "" : ".preview").jpg")
                 if let existing = NSImage(contentsOf: cached) {
                     image = existing
                     return
                 }
-                guard let file = wallpaper.fileURL else { return }
+                guard let file = wallpaper.dynamicSourceURL else { return }
                 let made: Bool = await Task.detached(priority: .utility) {
                     guard let source = CGImageSourceCreateWithURL(file as CFURL, nil),
                           let frame = CGImageSourceCreateThumbnailAtIndex(source, index, [

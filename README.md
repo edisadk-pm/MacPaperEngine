@@ -7,9 +7,13 @@ Three kinds, each with its own tab:
 - **Videos**: six abstract loops built in, plus your own videos and GIFs. Loops restart without a
   visible jump.
 - **Dynamic**: pictures that change with the sun or with Light and Dark mode, like macOS's own.
-  Six come with MacPaper (Alps, Monterey, Fuji, Cyprus, Dome, Fletschhorn), and you can add your
-  own `.heic` files.
+  Five come with MacPaper (Alps, Fuji, Cyprus, Dome, Fletschhorn), and you can add your own
+  `.heic` files.
 - **Pictures**: still images, drawn once and costing no power while shown.
+
+The built-in clips and dynamic wallpapers aren't inside the app, which is about 7 MB. Each one
+downloads from [macpaper-media](https://github.com/edisadk-pm/macpaper-media/releases) the first
+time you pick it (60 to 240 MB for a clip), then stays on your Mac.
 
 **Online** browses Wallhaven for pictures and Pexels for videos, and downloads and applies one in
 a click. Wallpapers show behind your desktop icons and on the Lock Screen. On the desktop MacPaper
@@ -26,6 +30,21 @@ open build/MacPaper.app
 
 Drag `build/MacPaper.app` to `/Applications` if you want to keep it. Do this before turning on
 **Start Wallpaper at Login**, because the login item points at the app's current location.
+
+### Built-in media
+
+The full clips and dynamic wallpapers live in `Media/`, which git ignores, and in the
+`media-1` release of [macpaper-media](https://github.com/edisadk-pm/macpaper-media). The app ships
+only `Resources/*/catalog.json` and small previews. After changing `Media/`:
+
+```sh
+Packaging/make-previews.sh      # previews and file sizes for the catalogs
+gh release upload media-1 Media/Footage/*.mp4 Media/Dynamic/*.heic \
+    --repo edisadk-pm/macpaper-media --clobber
+```
+
+`MACPAPER_MEDIA_URL=file:///path/to/folder/` makes a development build download from a local
+folder instead.
 
 ## Using the app
 
@@ -62,7 +81,9 @@ icon. Each file goes to the tab it belongs in:
 
 To remove something you added or downloaded, hover over it and click the **×** in its corner, or
 right-click it. MacPaper asks first, and deletes only its own copy: the file you added from your
-Mac stays where it was. Built-in wallpapers can't be removed.
+Mac stays where it was. Built-ins can't be removed, but right-clicking one offers **Remove
+Download** to free its space, and **General > Downloaded Built-ins > Remove Unused** clears every
+one that isn't on screen. They download again when picked.
 
 **Hide Loop Jump** (Playback, on by default) makes a copy of each of your videos whose first
 half-second blends in its last, so the restart can't be seen. The copy is made once, in the

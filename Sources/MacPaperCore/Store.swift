@@ -13,6 +13,8 @@ public enum Paths {
     public static let videos = root.appendingPathComponent("Videos", isDirectory: true)
     public static let images = root.appendingPathComponent("Pictures", isDirectory: true)
     public static let downloads = root.appendingPathComponent("Downloads", isDirectory: true)
+    /// Built-in clips and dynamic wallpapers, once downloaded. They aren't shipped in the app.
+    public static let included = root.appendingPathComponent("Included", isDirectory: true)
     public static let thumbnails = root.appendingPathComponent("Thumbnails", isDirectory: true)
     public static let state = root.appendingPathComponent("state.json")
     public static let stats = root.appendingPathComponent("stats.json")
@@ -33,7 +35,7 @@ public enum Paths {
     public static let includedDynamic = engineResources.appendingPathComponent("Dynamic", isDirectory: true)
 
     public static func prepare() {
-        for dir in [videos, images, thumbnails] {
+        for dir in [videos, images, thumbnails, included] {
             try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         }
     }

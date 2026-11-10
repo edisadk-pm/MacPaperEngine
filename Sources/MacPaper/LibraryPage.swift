@@ -190,6 +190,9 @@ struct WallpaperTile: View {
                     .overlay(alignment: .bottomLeading) {
                         badges.padding(6)
                     }
+                    .overlay {
+                        if let progress = model.fetching[wallpaper.id] { DownloadRing(progress: progress) }
+                    }
                     .scaleEffect(hovering ? 1.015 : 1)
                     .animation(.snappy(duration: 0.15), value: hovering)
                 Text(wallpaper.name)
@@ -213,7 +216,7 @@ struct WallpaperTile: View {
         .animation(.easeOut(duration: 0.12), value: hovering)
         .help(helpText)
         .task(id: wallpaper.id) {
-            guard wallpaper.kind == .dynamic, let url = wallpaper.fileURL else { return }
+            guard let url = wallpaper.dynamicSourceURL else { return }
             schedule = await Task.detached(priority: .utility) { DynamicSchedule.read(from: url) }.value
         }
         .contextMenu { menu(active: active) }
@@ -223,6 +226,9 @@ struct WallpaperTile: View {
 
     @ViewBuilder private var badges: some View {
         HStack(spacing: 4) {
+            if wallpaper.needsDownload, model.fetching[wallpaper.id] == nil, let size = wallpaper.downloadSize {
+                Badge(text: Format.storage(Int64(size)), symbol: "icloud.and.arrow.down")
+            }
             switch wallpaper.kind {
             case .video:
                 if let progress = model.smoothing[wallpaper.id] {
@@ -257,12 +263,26 @@ struct WallpaperTile: View {
             parts.append(source.author.map { "by \($0) on \(source.provider.name)" } ?? "from \(source.provider.name)")
         }
         if wallpaper.isIncluded { parts.append("Included with MacPaper") }
+        if wallpaper.needsDownload, let size = wallpaper.downloadSize {
+            parts.append("Click to download (\(Format.storage(Int64(size)))) and set as your wallpaper")
+        }
         return parts.joined(separator: " · ")
     }
 
     @ViewBuilder private func menu(active: Bool) -> some View {
-        Button(active ? "Turn Off" : "Set as Wallpaper") { model.toggle(wallpaper) }
-        if let url = wallpaper.fileURL, !wallpaper.isBuiltInFootage {
+        if model.fetching[wallpaper.id] != nil {
+            Button("Cancel Download") { model.cancelFetch(wallpaper) }
+        } else if wallpaper.needsDownload {
+            Button("Download and Set as Wallpaper") { model.fetch(wallpaper, apply: true) }
+            Button("Download Only") { model.fetch(wallpaper, apply: false) }
+        } else {
+            Button(active ? "Turn Off" : "Set as Wallpaper") { model.toggle(wallpaper) }
+        }
+        if wallpaper.isBuiltIn, wallpaper.isDownloaded {
+            Divider()
+            Button("Remove Download") { model.removeDownload(wallpaper) }
+        }
+        if let url = wallpaper.fileURL, !wallpaper.isBuiltIn {
             Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
         }
         if let source = wallpaper.source, let page = source.pageURL {

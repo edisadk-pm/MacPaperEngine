@@ -171,6 +171,15 @@ struct GeneralPage: View {
                 RowDivider()
                 Row(symbol: "internaldrive.fill", title: "Size on Disk", value: Format.storage(model.libraryBytes))
                 RowDivider()
+                Row(symbol: "icloud.and.arrow.down.fill", title: "Downloaded Built-ins",
+                    subtitle: "Downloaded the first time you pick them") {
+                    HStack(spacing: 8) {
+                        ValueText(Format.storage(model.includedBytes))
+                        QuietButton(title: "Remove Unused") { model.removeUnusedDownloads() }
+                            .help("Removes downloaded built-ins that aren't on screen. They download again when picked.")
+                    }
+                }
+                RowDivider()
                 Row(symbol: "folder.fill", title: "Library Folder") {
                     QuietButton(title: "Show") { NSWorkspace.shared.open(Paths.root) }
                 }

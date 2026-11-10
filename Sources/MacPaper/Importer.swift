@@ -155,6 +155,10 @@ enum Thumbnails {
     /// Thumbnails for things that didn't come through an import are made the first time they're
     /// needed.
     static func ensure(_ wallpaper: Wallpaper) async -> URL {
+        // Built-ins ship with their tile picture, so they show before anything is downloaded.
+        if let preview = wallpaper.previewImageURL, FileManager.default.fileExists(atPath: preview.path) {
+            return preview
+        }
         let url = wallpaper.thumbnailURL
         guard !FileManager.default.fileExists(atPath: url.path) else { return url }
         switch wallpaper.kind {

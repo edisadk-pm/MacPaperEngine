@@ -183,7 +183,7 @@ private struct OnlineTile: View {
     }
 }
 
-private struct DownloadRing: View {
+struct DownloadRing: View {
     let progress: Double
 
     var body: some View {

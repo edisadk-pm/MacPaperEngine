@@ -47,12 +47,12 @@ final class StatusMenu: NSObject {
         pauseItem.target = self
         menu.addItem(pauseItem)
 
-        let open = NSMenuItem(title: "Open MacPaper…", action: #selector(openApp), keyEquivalent: "")
+        let open = NSMenuItem(title: "Open MacPaperEngine…", action: #selector(openApp), keyEquivalent: "")
         open.target = self
         menu.addItem(open)
         menu.addItem(.separator())
 
-        let quit = NSMenuItem(title: "Stop MacPaper Engine", action: #selector(quit), keyEquivalent: "")
+        let quit = NSMenuItem(title: "Stop Wallpaper", action: #selector(quit), keyEquivalent: "")
         quit.target = self
         menu.addItem(quit)
         return menu

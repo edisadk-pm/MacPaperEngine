@@ -1,21 +1,22 @@
 #!/bin/bash
-# Builds build/MacPaper.app. Usage: ./build.sh
+# Builds build/MacPaperEngine.app. Usage: ./build.sh
 set -euo pipefail
 cd "$(dirname "$0")"
 
 swift build -c release
 BIN="$(swift build -c release --show-bin-path)"
 
-APP="build/MacPaper.app"
-ENGINE="$APP/Contents/Library/LoginItems/MacPaperEngine.app"
+APP="build/MacPaperEngine.app"
+ENGINE="$APP/Contents/Library/LoginItems/MacPaperEngine Helper.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" \
          "$ENGINE/Contents/MacOS" "$ENGINE/Contents/Resources"
 
-cp "$BIN/MacPaper" "$APP/Contents/MacOS/MacPaper"
-cp "$BIN/MacPaperEngine" "$ENGINE/Contents/MacOS/MacPaperEngine"
-cp Packaging/MacPaper-Info.plist "$APP/Contents/Info.plist"
-cp Packaging/MacPaperEngine-Info.plist "$ENGINE/Contents/Info.plist"
+# The SwiftPM products keep their names; the bundles carry the app's.
+cp "$BIN/MacPaper" "$APP/Contents/MacOS/MacPaperEngine"
+cp "$BIN/MacPaperEngine" "$ENGINE/Contents/MacOS/MacPaperEngine Helper"
+cp Packaging/App-Info.plist "$APP/Contents/Info.plist"
+cp Packaging/Helper-Info.plist "$ENGINE/Contents/Info.plist"
 
 # Produces Assets.car (Default, Dark, Tinted and Clear looks) and AppIcon.icns for macOS 15 and older.
 if ! xcrun actool Resources/AppIcon.icon --compile "$APP/Contents/Resources" \
@@ -34,7 +35,7 @@ for bundled in Footage Dynamic; do
     fi
 done
 
-strip -x "$APP/Contents/MacOS/MacPaper" "$ENGINE/Contents/MacOS/MacPaperEngine"
+strip -x "$APP/Contents/MacOS/MacPaperEngine" "$ENGINE/Contents/MacOS/MacPaperEngine Helper"
 
 # Inner bundle first: signing the outer app seals the inner one.
 codesign --force --sign - "$ENGINE"

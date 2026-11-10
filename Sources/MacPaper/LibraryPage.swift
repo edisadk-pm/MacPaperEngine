@@ -26,7 +26,7 @@ struct LibraryPage: View {
             switch category {
             case .videos:
                 if !FootageCatalog.all.isEmpty {
-                    WallpaperSection(title: "Abstract", detail: "Included with MacPaper", first: true,
+                    WallpaperSection(title: "Abstract", detail: "Included with MacPaperEngine", first: true,
                                      items: FootageCatalog.all, model: model)
                 }
                 UserSection(title: "Your Videos", detail: "Videos, GIFs and downloads",
@@ -35,7 +35,7 @@ struct LibraryPage: View {
             case .dynamic:
                 DynamicExplainer(model: model).padding(.top, model.showsDisplayPicker ? 17 : 0)
                 if !IncludedDynamicCatalog.all.isEmpty {
-                    WallpaperSection(title: "Included with MacPaper", items: IncludedDynamicCatalog.all, model: model)
+                    WallpaperSection(title: "Included with MacPaperEngine", items: IncludedDynamicCatalog.all, model: model)
                 }
                 UserSection(title: "Yours", detail: ".heic files you add", category: category,
                             items: model.userDynamic, model: model)
@@ -278,7 +278,7 @@ struct WallpaperTile: View {
         if let source = wallpaper.source {
             parts.append(source.author.map { "by \($0) on \(source.provider.name)" } ?? "from \(source.provider.name)")
         }
-        if wallpaper.isIncluded { parts.append("Included with MacPaper") }
+        if wallpaper.isIncluded { parts.append("Included with MacPaperEngine") }
         if wallpaper.needsDownload, let size = wallpaper.downloadSize {
             parts.append("Click to download (\(Format.storage(Int64(size)))) and set as your wallpaper")
         }

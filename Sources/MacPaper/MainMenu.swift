@@ -35,8 +35,9 @@ final class MainMenu: NSObject, NSMenuItemValidation {
     // MARK: - Menus
 
     private func appMenu() -> NSMenu {
-        let menu = NSMenu(title: "MacPaper")
-        menu.addItem(standard("About MacPaper", #selector(NSApplication.orderFrontStandardAboutPanel(_:))))
+        let menu = NSMenu(title: "MacPaperEngine")
+        menu.addItem(standard("About MacPaperEngine", #selector(NSApplication.orderFrontStandardAboutPanel(_:))))
+        menu.addItem(item("Check for Updates…", #selector(checkForUpdates)))
         menu.addItem(.separator())
         menu.addItem(item("Settings…", #selector(openSettings), key: ","))
         menu.addItem(.separator())
@@ -46,13 +47,13 @@ final class MainMenu: NSObject, NSMenuItemValidation {
         NSApp.servicesMenu = servicesMenu
         menu.addItem(services)
         menu.addItem(.separator())
-        menu.addItem(standard("Hide MacPaper", #selector(NSApplication.hide(_:)), key: "h"))
+        menu.addItem(standard("Hide MacPaperEngine", #selector(NSApplication.hide(_:)), key: "h"))
         menu.addItem(standard("Hide Others", #selector(NSApplication.hideOtherApplications(_:)), key: "h", modifiers: [.command, .option]))
         menu.addItem(standard("Show All", #selector(NSApplication.unhideAllApplications(_:))))
         menu.addItem(.separator())
-        menu.addItem(standard("Quit MacPaper", #selector(NSApplication.terminate(_:)), key: "q"))
+        menu.addItem(standard("Quit MacPaperEngine", #selector(NSApplication.terminate(_:)), key: "q"))
         // Held Option: closing the window normally leaves the wallpaper running.
-        let quitAll = item("Quit MacPaper and Stop Wallpaper", #selector(quitAndStop), key: "q", modifiers: [.command, .option])
+        let quitAll = item("Quit MacPaperEngine and Stop Wallpaper", #selector(quitAndStop), key: "q", modifiers: [.command, .option])
         quitAll.isAlternate = true
         menu.addItem(quitAll)
         return menu
@@ -177,6 +178,8 @@ final class MainMenu: NSObject, NSMenuItemValidation {
             return true
         case #selector(nextWallpaper), #selector(previousWallpaper):
             return settings.enabled
+        case #selector(checkForUpdates):
+            return model.updater.isAvailable
         case #selector(revealCurrent):
             return model.currentWallpaper != nil
         case #selector(removeCurrent):
@@ -207,6 +210,11 @@ final class MainMenu: NSObject, NSMenuItemValidation {
     // MARK: - Actions
 
     @objc private func openSettings() { model.page = .general }
+
+    @objc private func checkForUpdates() {
+        model.page = .general
+        model.updater.check(userInitiated: true)
+    }
     @objc private func addWallpapers() { model.presentImportPanel(for: model.page.category) }
     @objc private func showLibrary() { NSWorkspace.shared.open(Paths.root) }
     @objc private func goBack() { model.goBack() }

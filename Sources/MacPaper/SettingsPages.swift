@@ -212,6 +212,9 @@ struct GeneralPage: View {
                 }
             }
 
+            SectionLabel("Updates")
+            UpdatesCard(updater: model.updater)
+
             SectionLabel("About")
             AboutCard()
         }
@@ -303,6 +306,52 @@ private struct FavouriteRow: View {
     }
 }
 
+struct UpdatesCard: View {
+    @ObservedObject var updater: Updater
+
+    private var status: String {
+        guard updater.isAvailable else { return "Development build: updates are off" }
+        switch updater.phase {
+        case .idle: return updater.lastChecked.map { "Last checked \($0.formatted(.relative(presentation: .named)))" } ?? "Not checked yet"
+        case .checking: return "Checking…"
+        case .upToDate: return "Up to date"
+        case .available(let version): return "Version \(version) is available"
+        case .downloading(let version, let progress): return "Downloading \(version)… \(Int(progress * 100))%"
+        case .ready(let version): return "Version \(version) installs when you close this window"
+        case .installing: return "Installing…"
+        case .failed(let message): return message
+        }
+    }
+
+    var body: some View {
+        Card {
+            Row(symbol: "arrow.triangle.2.circlepath", colors: Theme.sky, title: "Version \(updater.version)",
+                subtitle: status) {
+                switch updater.phase {
+                case .ready:
+                    QuietButton(title: "Restart Now", prominent: true) { updater.installNow() }
+                case .available:
+                    QuietButton(title: "Download", prominent: true) { updater.downloadAvailable() }
+                case .checking, .downloading, .installing:
+                    ProgressView().controlSize(.small)
+                default:
+                    QuietButton(title: "Check Now") { updater.check(userInitiated: true) }
+                        .disabled(!updater.isAvailable)
+                }
+            }
+            RowDivider()
+            Row(symbol: "arrow.down.app.fill", title: "Install Updates Automatically",
+                subtitle: "Downloads in the background and installs when you close the window") {
+                Switch(isOn: $updater.installsAutomatically)
+            }
+            RowDivider()
+            Row(symbol: "link", title: "Release Notes") {
+                QuietButton(title: "Open") { NSWorkspace.shared.open(Updater.releasesPage) }
+            }
+        }
+    }
+}
+
 struct AboutCard: View {
     private var version: String {
         (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String) ?? "1.0"
@@ -316,10 +365,10 @@ struct AboutCard: View {
                     .frame(width: 56, height: 56)
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text("MacPaper").font(.system(size: 14, weight: .semibold)).foregroundStyle(Theme.primary)
+                        Text("MacPaperEngine").font(.system(size: 14, weight: .semibold)).foregroundStyle(Theme.primary)
                         Text("Version \(version)").font(.system(size: 11)).foregroundStyle(Theme.secondary)
                     }
-                    Text("Wallpapers that stay out of your memory. MacPaper draws above your system wallpaper, which returns when MacPaper stops. Only Play on Lock Screen changes it, and turning that off restores it.")
+                    Text("Wallpapers that stay out of your memory. MacPaperEngine draws above your system wallpaper, which returns when it stops. Only Play on Lock Screen changes it, and turning that off restores it.")
                         .font(.system(size: 12))
                         .foregroundStyle(Theme.secondary)
                         .fixedSize(horizontal: false, vertical: true)

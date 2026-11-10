@@ -30,7 +30,7 @@ struct DetailView: View {
         .animation(.snappy(duration: 0.25), value: model.notice)
         .background(Theme.tint.ignoresSafeArea())
         .preferredColorScheme(.dark)
-        .alert("MacPaper", isPresented: Binding(get: { model.alert != nil }, set: { if !$0 { model.alert = nil } })) {
+        .alert("MacPaperEngine", isPresented: Binding(get: { model.alert != nil }, set: { if !$0 { model.alert = nil } })) {
             Button("OK", role: .cancel) {}
         } message: {
             Text(model.alert ?? "")

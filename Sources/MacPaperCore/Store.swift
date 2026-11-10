@@ -23,11 +23,14 @@ public enum Paths {
 
     /// Bundled files live in the engine's bundle, which is nested inside the app, so both
     /// processes find them.
+    /// The engine's bundle inside the app.
+    public static let helperPath = "Contents/Library/LoginItems/MacPaperEngine Helper.app"
+
     private static let engineResources: URL = {
         let main = Bundle.main.bundleURL
-        let engine = main.lastPathComponent == "MacPaperEngine.app"
+        let engine = Bundle.main.bundleIdentifier == IPC.engineBundleID
             ? main
-            : main.appendingPathComponent("Contents/Library/LoginItems/MacPaperEngine.app")
+            : main.appendingPathComponent(helperPath)
         return engine.appendingPathComponent("Contents/Resources", isDirectory: true)
     }()
 

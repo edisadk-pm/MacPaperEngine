@@ -49,7 +49,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             contentRect: NSRect(x: 0, y: 0, width: Theme.windowWidth, height: Theme.windowHeight),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered, defer: false)
-        window.title = "MacPaper"
+        window.title = "MacPaperEngine"
         window.isOpaque = false
         window.backgroundColor = .clear
         window.appearance = NSAppearance(named: .darkAqua)
@@ -77,6 +77,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         self.window = window
+    }
+
+    /// A downloaded update replaces the app as it quits, and the wallpaper restarts on it.
+    @MainActor
+    func applicationWillTerminate(_ notification: Notification) {
+        model?.updater.installOnQuit()
     }
 
     /// Closing the window ends this process. The engine keeps the wallpaper running on its own,

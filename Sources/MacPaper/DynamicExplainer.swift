@@ -51,7 +51,7 @@ struct DynamicExplainer: View {
 
             if !collapsed {
                 VStack(alignment: .leading, spacing: 14) {
-                    Text("Pictures that change on their own as your day goes by, the way macOS's own wallpapers do. One file holds several photos of the same place, from dawn to night, and MacPaper shows the one that matches the moment.")
+                    Text("Pictures that change on their own as your day goes by, the way macOS's own wallpapers do. One file holds several photos of the same place, from dawn to night, and MacPaperEngine shows the one that matches the moment.")
                         .font(.system(size: 12))
                         .foregroundStyle(Theme.secondary)
                         .fixedSize(horizontal: false, vertical: true)

@@ -40,7 +40,7 @@ enum OnlineError: LocalizedError {
         case .rateLimited: "Too many requests in a short time. Wait a minute and try again."
         case .offline: "You appear to be offline."
         case .server(let provider, let status): "\(provider) isn't responding right now (error \(status))."
-        case .unreadable(let provider): "\(provider) sent a reply MacPaper couldn't read."
+        case .unreadable(let provider): "\(provider) sent a reply MacPaperEngine couldn't read."
         }
     }
 }
@@ -53,7 +53,7 @@ enum OnlineHTTP {
         configuration.urlCache = URLCache(memoryCapacity: 16 << 20, diskCapacity: 200 << 20, directory: cache)
         configuration.requestCachePolicy = .useProtocolCachePolicy
         // A generic client name: nothing about the user or this Mac.
-        configuration.httpAdditionalHeaders = ["User-Agent": "MacPaper/1.0"]
+        configuration.httpAdditionalHeaders = ["User-Agent": "MacPaperEngine/\(Updater.currentVersion)"]
         configuration.timeoutIntervalForRequest = 20
         return URLSession(configuration: configuration)
     }()
@@ -66,7 +66,8 @@ enum OnlineHTTP {
         } catch let error as URLError where error.code == .notConnectedToInternet || error.code == .networkConnectionLost {
             throw OnlineError.offline
         }
-        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        // Non-HTTP sources, such as a local file in development, have no status.
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 200
         switch status {
         case 200..<300: break
         case 401, 403: throw OnlineError.badKey

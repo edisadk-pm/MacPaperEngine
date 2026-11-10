@@ -88,6 +88,11 @@ final class AppModel: ObservableObject {
     var settings: WallpaperSettings { state.settings }
 
     private(set) lazy var online = OnlineModel(app: self)
+    private(set) lazy var updater: Updater = {
+        let updater = Updater()
+        updater.app = self
+        return updater
+    }()
     private var noticeTask: Task<Void, Never>?
     private var smoothingTask: Task<Void, Never>?
 
@@ -110,6 +115,9 @@ final class AppModel: ObservableObject {
         IPC.post(IPC.statusRequested)
         smoothLoopsIfNeeded()
         fetchWallpapersInUse()
+        restoreLoginItem()
+        // Left a moment so the window is up before any network traffic.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in self?.updater.checkIfDue() }
     }
 
     // MARK: - Engine
@@ -121,7 +129,7 @@ final class AppModel: ObservableObject {
     var isEngineRunning: Bool { engineApp != nil }
 
     private var engineURL: URL {
-        Bundle.main.bundleURL.appendingPathComponent("Contents/Library/LoginItems/MacPaperEngine.app")
+        Bundle.main.bundleURL.appendingPathComponent(Paths.helperPath)
     }
 
     func ensureEngineRunning() {
@@ -430,7 +438,7 @@ final class AppModel: ObservableObject {
         if let source = wallpaper.source {
             details.append("You can download it again from \(source.provider.name) in Online.")
         } else {
-            details.append("MacPaper's copy is deleted. The file you added from your Mac isn't touched.")
+            details.append("MacPaperEngine's copy is deleted. The file you added from your Mac isn't touched.")
         }
         if isOnScreen(wallpaper) {
             details.append("It's on your desktop now, so the desktop goes back to your system wallpaper.")
@@ -599,7 +607,26 @@ final class AppModel: ObservableObject {
 
     var opensAtLogin: Bool { loginService.status == .enabled }
 
+    private static let startAtLoginKey = "startAtLogin"
+
+    /// The login item is registered by path, so moving or renaming the app breaks it. Whether
+    /// it should start at login is remembered, and the registration redone when it went missing.
+    private func restoreLoginItem() {
+        let defaults = UserDefaults.standard
+        switch loginService.status {
+        case .enabled:
+            defaults.set(true, forKey: Self.startAtLoginKey)
+        case .notRegistered, .notFound:
+            guard defaults.bool(forKey: Self.startAtLoginKey) else { return }
+            try? loginService.register()
+        default:
+            // Waiting for approval in System Settings, which is the user's call.
+            break
+        }
+    }
+
     func setOpensAtLogin(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: Self.startAtLoginKey)
         do {
             if enabled {
                 try loginService.register()

@@ -123,15 +123,15 @@ public enum LockScreen {
         var categories = (entries["categories"] as? [[String: Any]] ?? []).filter { $0["id"] as? String != categoryID }
         categories.append([
             "id": categoryID,
-            "localizedNameKey": "MacPaper",
-            "localizedDescriptionKey": "Your MacPaper wallpaper",
+            "localizedNameKey": "MacPaperEngine",
+            "localizedDescriptionKey": "Your MacPaperEngine wallpaper",
             "preferredOrder": 999,
             "previewImage": thumbnail,
             "representativeAssetID": assetID,
             "subcategories": [[
                 "id": subcategoryID,
-                "localizedNameKey": "MacPaper",
-                "localizedDescriptionKey": "Your MacPaper wallpaper",
+                "localizedNameKey": "MacPaperEngine",
+                "localizedDescriptionKey": "Your MacPaperEngine wallpaper",
                 "preferredOrder": 0,
                 "previewImage": thumbnail,
                 "representativeAssetID": assetID,

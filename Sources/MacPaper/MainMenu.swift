@@ -180,9 +180,13 @@ final class MainMenu: NSObject, NSMenuItemValidation {
         case #selector(revealCurrent):
             return model.currentWallpaper != nil
         case #selector(removeCurrent):
-            guard let current = model.currentWallpaper, current.isRemovable else {
+            guard let current = model.currentWallpaper else {
                 item.title = "Remove Current Wallpaper…"
                 return false
+            }
+            if current.isBuiltIn {
+                item.title = "Remove Download of “\(current.name)”…"
+                return current.isDownloaded
             }
             item.title = "Remove “\(current.name)” from Library…"
             return true
@@ -227,7 +231,8 @@ final class MainMenu: NSObject, NSMenuItemValidation {
     }
 
     @objc private func removeCurrent() {
-        if let current = model.currentWallpaper { model.confirmRemove(current) }
+        guard let current = model.currentWallpaper else { return }
+        if current.isBuiltIn { model.confirmRemoveDownload(current) } else { model.confirmRemove(current) }
     }
 
     @objc private func toggleSameOnAll() { model.mutate { $0.settings.sameOnAllDisplays.toggle() } }

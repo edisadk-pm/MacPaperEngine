@@ -204,12 +204,23 @@ struct WallpaperTile: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        // Outside the tile's own button, so a click here removes rather than applies.
+        // These sit outside the tile's own button, so a click on them doesn't apply the wallpaper.
         .overlay(alignment: .topLeading) {
-            if wallpaper.isRemovable, hovering {
-                RemoveButton { model.confirmRemove(wallpaper) }
-                    .padding(6)
-                    .transition(.opacity)
+            if hovering, model.fetching[wallpaper.id] == nil {
+                if wallpaper.isRemovable {
+                    RemoveButton(help: "Remove from Library") { model.confirmRemove(wallpaper) }
+                        .padding(6)
+                        .transition(.opacity)
+                } else if wallpaper.isBuiltIn, wallpaper.isDownloaded {
+                    RemoveButton(help: removeDownloadHelp) { model.confirmRemoveDownload(wallpaper) }
+                        .padding(6)
+                        .transition(.opacity)
+                }
+            }
+        }
+        .overlay(alignment: .top) {
+            if model.fetching[wallpaper.id] != nil {
+                CancelDownloadButton { model.cancelFetch(wallpaper) }
             }
         }
         .onHover { hovering = $0 }
@@ -222,6 +233,11 @@ struct WallpaperTile: View {
         .contextMenu { menu(active: active) }
         .accessibilityLabel(wallpaper.name)
         .accessibilityAddTraits(active ? .isSelected : [])
+    }
+
+    private var removeDownloadHelp: String {
+        let size = wallpaper.downloadSize.map { " (frees \(Format.storage(Int64($0))))" } ?? ""
+        return "Remove Download\(size). It downloads again when you pick it."
     }
 
     @ViewBuilder private var badges: some View {
@@ -280,7 +296,7 @@ struct WallpaperTile: View {
         }
         if wallpaper.isBuiltIn, wallpaper.isDownloaded {
             Divider()
-            Button("Remove Download") { model.removeDownload(wallpaper) }
+            Button("Remove Download") { model.confirmRemoveDownload(wallpaper) }
         }
         if let url = wallpaper.fileURL, !wallpaper.isBuiltIn {
             Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
@@ -297,6 +313,7 @@ struct WallpaperTile: View {
 
 /// The small × in a tile's corner for wallpapers the user added.
 struct RemoveButton: View {
+    var help = "Remove from Library"
     let action: () -> Void
     @State private var hovering = false
 
@@ -312,8 +329,34 @@ struct RemoveButton: View {
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
-        .help("Remove from Library")
-        .accessibilityLabel("Remove from Library")
+        .help(help)
+        .accessibilityLabel(help)
+    }
+}
+
+/// A stop button that sits in the middle of a tile's download ring.
+struct CancelDownloadButton: View {
+    let action: () -> Void
+    @State private var hovering = false
+
+    var body: some View {
+        // The picture's own shape, so the button lands in the middle of the ring drawn there.
+        Color.clear
+            .aspectRatio(TileMetrics.aspectRatio, contentMode: .fit)
+            .overlay {
+                Button(action: action) {
+                    Image(systemName: "stop.fill")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(.white)
+                        .frame(width: 24, height: 24)
+                        .background(Color.white.opacity(hovering ? 0.3 : 0.12), in: Circle())
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .onHover { hovering = $0 }
+                .help("Cancel Download")
+                .accessibilityLabel("Cancel Download")
+            }
     }
 }
 

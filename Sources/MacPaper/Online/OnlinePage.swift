@@ -127,7 +127,18 @@ private struct OnlineTile: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .overlay(alignment: .topLeading) {
+            if hovering, progress == nil, let saved {
+                RemoveButton { model.confirmRemove(saved) }.padding(6).transition(.opacity)
+            }
+        }
+        .overlay(alignment: .top) {
+            if progress != nil {
+                CancelDownloadButton { online.cancelDownload(item) }
+            }
+        }
         .onHover { hovering = $0 }
+        .animation(.easeOut(duration: 0.12), value: hovering)
         .help(help(saved: saved != nil, downloading: progress != nil))
         .contextMenu {
             if let saved {

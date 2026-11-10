@@ -355,6 +355,32 @@ final class AppModel: ObservableObject {
         }
     }
 
+    /// Removing a download costs only a re-download, so it only asks when the wallpaper is on
+    /// screen and the desktop would change.
+    func confirmRemoveDownload(_ wallpaper: Wallpaper) {
+        guard wallpaper.isBuiltIn, wallpaper.isDownloaded else { return }
+        guard isOnScreen(wallpaper) else {
+            removeDownload(wallpaper)
+            return
+        }
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Remove the download of “\(wallpaper.name)”?"
+        let frees = wallpaper.downloadSize.map { "It frees \(Format.storage(Int64($0))), and" } ?? "It"
+        alert.informativeText = "It's on your desktop now, so the desktop goes back to your system wallpaper. \(frees) downloads again when you pick it."
+        let removeButton = alert.addButton(withTitle: "Remove Download")
+        removeButton.hasDestructiveAction = true
+        alert.addButton(withTitle: "Cancel")
+        let finish = { [weak self] (response: NSApplication.ModalResponse) in
+            if response == .alertFirstButtonReturn { self?.removeDownload(wallpaper) }
+        }
+        if let window = NSApp.keyWindow ?? NSApp.mainWindow {
+            alert.beginSheetModal(for: window, completionHandler: finish)
+        } else {
+            finish(alert.runModal())
+        }
+    }
+
     /// Frees the space a downloaded built-in takes. It can be downloaded again any time.
     func removeDownload(_ wallpaper: Wallpaper) {
         guard wallpaper.isBuiltIn, let local = wallpaper.fileURL, wallpaper.isDownloaded else { return }

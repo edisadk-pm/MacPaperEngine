@@ -1,4 +1,4 @@
-# MacPaper
+# MacPaperEngine
 
 Desktop wallpapers for macOS, built to use as little memory as possible.
 
@@ -7,7 +7,7 @@ Three kinds, each with its own tab:
 - **Videos**: six abstract loops built in, plus your own videos and GIFs. Loops restart without a
   visible jump.
 - **Dynamic**: pictures that change with the sun or with Light and Dark mode, like macOS's own.
-  Five come with MacPaper (Alps, Fuji, Cyprus, Dome, Fletschhorn), and you can add your own
+  Five come with MacPaperEngine (Alps, Fuji, Cyprus, Dome, Fletschhorn), and you can add your own
   `.heic` files.
 - **Pictures**: still images, drawn once and costing no power while shown.
 
@@ -16,8 +16,33 @@ downloads from [macpaper-media](https://github.com/edisadk-pm/macpaper-media/rel
 time you pick it (60 to 240 MB for a clip), then stays on your Mac.
 
 **Online** browses Wallhaven for pictures and Pexels for videos, and downloads and applies one in
-a click. Wallpapers show behind your desktop icons and on the Lock Screen. On the desktop MacPaper
-draws above your system wallpaper, which reappears when MacPaper stops.
+a click. Wallpapers show behind your desktop icons and on the Lock Screen. On the desktop MacPaperEngine
+draws above your system wallpaper, which reappears when it stops.
+
+## Install
+
+Download `MacPaperEngine.zip` from the
+[latest release](https://github.com/edisadk-pm/MacPaperEngine/releases/latest), unzip it and move
+`MacPaperEngine.app` to `/Applications`. Do this before turning on **Start Wallpaper at Login**,
+because the login item points at the app's current location.
+
+The app isn't notarized, so the first time macOS says it can't check it. Open **System Settings >
+Privacy & Security** and click **Open Anyway** next to MacPaperEngine. Only that first launch asks.
+
+## Updates
+
+MacPaperEngine updates itself from this repository's
+[releases](https://github.com/edisadk-pm/MacPaperEngine/releases). Every six hours, and whenever you
+choose **MacPaperEngine > Check for Updates…**, the window looks for a newer version. It downloads
+it in the background and checks it before keeping it: the SHA-256 checksum published with the
+release, the bundle identifier, the version and the code signature. The new version is swapped in
+when you close the window, and the wallpaper is back within a second or two. **Restart Now** in
+**General > Updates** installs it straight away. Turn off **Install Updates Automatically** there
+to be asked first.
+
+Only copies in an `Applications` folder update. A build run from `build/`, or against a test library
+with `MACPAPER_HOME`, never does. `MACPAPER_UPDATE_FEED` points the updater at another release feed
+for testing.
 
 ## Build and run
 
@@ -25,11 +50,18 @@ Requires macOS 14 or later and Xcode.
 
 ```sh
 ./build.sh
-open build/MacPaper.app
+open build/MacPaperEngine.app
 ```
 
-Drag `build/MacPaper.app` to `/Applications` if you want to keep it. Do this before turning on
-**Start Wallpaper at Login**, because the login item points at the app's current location.
+### Releasing
+
+```sh
+Packaging/release.sh 1.2.0 "What changed"
+```
+
+The working tree must be clean. The script sets the version in both `Info.plist`s, builds, zips
+`MacPaperEngine.app` with its checksum, commits "Release 1.2.0", tags `v1.2.0`, pushes and creates
+the GitHub release. Installed copies pick it up within six hours.
 
 ### Built-in media
 
@@ -80,7 +112,7 @@ icon. Each file goes to the tab it belongs in:
 | JPEG, PNG, HEIC and other still images | Pictures |
 
 To remove something you added or downloaded, hover over it and click the **×** in its corner, or
-right-click it. MacPaper asks first, and deletes only its own copy: the file you added from your
+right-click it. MacPaperEngine asks first, and deletes only its own copy: the file you added from your
 Mac stays where it was. Built-ins can't be removed, but right-clicking one offers **Remove
 Download** to free its space, and **General > Downloaded Built-ins > Remove Unused** clears every
 one that isn't on screen. They download again when picked.
@@ -104,7 +136,8 @@ and sunset whatever hours they were saved with.
   page walks you through getting one and keeps it on your Mac. The file downloaded is the one that
   best matches your display, never larger, because a 4K file costs twice the memory to play.
 
-Only the window process goes online. The engine never does.
+Only the window process goes online, for browsing, built-in downloads and updates. The engine
+never does.
 
 ## Lock Screen
 
@@ -115,9 +148,10 @@ Pictures and dynamic wallpapers need no conversion: they become the system wallp
 admin rights are needed.
 
 This changes your system wallpaper while it's on. Turning it off restores your previous choice,
-which is kept in `SystemWallpaperBackup.plist` in MacPaper's data folder.
+which is kept in `SystemWallpaperBackup.plist` in the app's data folder
+(`~/Library/Application Support/MacPaper`).
 
-It isn't a public API. macOS refreshes its Aerial list periodically, which MacPaper detects and
+It isn't a public API. macOS refreshes its Aerial list periodically, which MacPaperEngine detects and
 repairs, but a major macOS update could break it.
 
 ## Why it uses so little memory
@@ -126,8 +160,8 @@ Two processes, so that the interface costs nothing when you aren't looking at it
 
 | Process | Runs | Built with |
 | --- | --- | --- |
-| `MacPaperEngine` | Always, with the wallpaper | AppKit, AVFoundation |
-| `MacPaper` | Only while the window is open | SwiftUI |
+| `MacPaperEngine Helper` | Always, with the wallpaper | AppKit, AVFoundation |
+| `MacPaperEngine` | Only while the window is open | SwiftUI |
 
 They share `~/Library/Application Support/MacPaper/state.json` and signal each other with
 distributed notifications.
@@ -143,7 +177,7 @@ distributed notifications.
 
 Measured on an M2 MacBook Air, engine plus macOS's decoder helper, while playing:
 
-| Wallpaper | MacPaper | `AVPlayerLooper`, for comparison |
+| Wallpaper | MacPaperEngine | `AVPlayerLooper`, for comparison |
 | --- | --- | --- |
 | 2560×1664 HEVC, 30 fps | about 80 MB | 112 MB |
 | 3840×2160 HEVC, 60 fps | about 160 MB | 278 MB |

@@ -225,7 +225,7 @@ private struct SidebarNote<Actions: View>: View {
                 Button(action: link.action) {
                     Text("\(link.title) \(Image(systemName: link.external ? "arrow.up.forward" : "chevron.forward"))")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(Theme.accent)
+                        .foregroundStyle(Theme.link)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)

@@ -16,6 +16,8 @@ enum Theme {
     static let cardStroke = Color.white.opacity(0.13)
     static let selection = Color.white.opacity(0.11)
     static let accent = Color(red: 0.05, green: 0.47, blue: 1.0)
+    /// Text links: lighter than the accent, so they read on the grey cards.
+    static let link = Color(red: 0.42, green: 0.71, blue: 1.0)
 
     static let cardRadius: CGFloat = 14
     static let body = Font.system(size: 13, weight: .medium)
@@ -129,9 +131,12 @@ struct Card<Content: View>: View {
 struct SectionLabel: View {
     let title: String
     var detail: String?
-    init(_ title: String, detail: String? = nil) {
+    /// A web link at the trailing end, such as a credit.
+    var link: (title: String, url: URL)?
+    init(_ title: String, detail: String? = nil, link: (title: String, url: URL)? = nil) {
         self.title = title
         self.detail = detail
+        self.link = link
     }
 
     var body: some View {
@@ -146,6 +151,7 @@ struct SectionLabel: View {
                     .lineLimit(1)
             }
             Spacer(minLength: 0)
+            if let link { CreditLink(title: link.title, url: link.url) }
         }
         .padding(.leading, 8)
         .padding(.trailing, 4)

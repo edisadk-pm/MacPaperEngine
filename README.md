@@ -168,6 +168,18 @@ which is kept in `SystemWallpaperBackup.plist` in the app's data folder
 It isn't a public API. macOS refreshes its Aerial list periodically, which MacPaperEngine detects and
 repairs, but a major macOS update could break it.
 
+## Credits
+
+- The six abstract video loops are by [Colin Jones (larchmedia)](https://www.pexels.com/@larchmedia/)
+  on Pexels, who makes two-minute abstract loops for backgrounds.
+- The five dynamic wallpapers come from [Dynamic Wallpaper Club](https://dynamicwallpaper.club),
+  where you'll find many more. The app's Dynamic tab links there.
+- Online pictures come from [Wallhaven](https://wallhaven.cc) and online videos from
+  [Pexels](https://www.pexels.com).
+
+The app credits them on the Videos and Dynamic tabs, in each built-in's tooltip and right-click
+menu, and on the About page.
+
 ## Why it uses so little memory
 
 Two processes, so that the interface costs nothing when you aren't looking at it:

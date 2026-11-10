@@ -27,6 +27,7 @@ struct LibraryPage: View {
             case .videos:
                 if !FootageCatalog.all.isEmpty {
                     WallpaperSection(title: "Abstract", detail: "Included with MacPaperEngine", first: true,
+                                     link: ("Videos by \(MediaCredits.abstractAuthor) on Pexels", MediaCredits.abstractURL),
                                      items: FootageCatalog.all, model: model)
                 }
                 UserSection(title: "Your Videos", detail: "Videos, GIFs and downloads",
@@ -35,7 +36,9 @@ struct LibraryPage: View {
             case .dynamic:
                 DynamicExplainer(model: model).padding(.top, model.showsDisplayPicker ? 17 : 0)
                 if !IncludedDynamicCatalog.all.isEmpty {
-                    WallpaperSection(title: "Included with MacPaperEngine", items: IncludedDynamicCatalog.all, model: model)
+                    WallpaperSection(title: "Included with MacPaperEngine",
+                                     link: ("From \(MediaCredits.dynamicSource)", MediaCredits.dynamicURL),
+                                     items: IncludedDynamicCatalog.all, showsMoreDynamic: true, model: model)
                 }
                 UserSection(title: "Yours", detail: ".heic files you add", category: category,
                             items: model.userDynamic, model: model)
@@ -79,14 +82,18 @@ private struct WallpaperSection: View {
     let title: String
     var detail: String?
     var first = false
+    var link: (title: String, url: URL)?
     let items: [Wallpaper]
+    /// Ends the grid with a tile pointing to where more come from.
+    var showsMoreDynamic = false
     @ObservedObject var model: AppModel
 
     var body: some View {
-        SectionLabel(title, detail: detail).padding(.top, first && !model.showsDisplayPicker ? -17 : 0)
+        SectionLabel(title, detail: detail, link: link).padding(.top, first && !model.showsDisplayPicker ? -17 : 0)
         Card {
             LazyVGrid(columns: TileMetrics.columns, spacing: 14) {
                 ForEach(items) { WallpaperTile(wallpaper: $0, model: model) }
+                if showsMoreDynamic { MoreDynamicTile() }
             }
             .padding(12)
         }
@@ -278,7 +285,8 @@ struct WallpaperTile: View {
         if let source = wallpaper.source {
             parts.append(source.author.map { "by \($0) on \(source.provider.name)" } ?? "from \(source.provider.name)")
         }
-        if wallpaper.isIncluded { parts.append("Included with MacPaperEngine") }
+        if wallpaper.isBuiltInFootage { parts.append("by \(MediaCredits.abstractAuthor) on Pexels") }
+        if wallpaper.isIncluded { parts.append("from \(MediaCredits.dynamicSource)") }
         if wallpaper.needsDownload, let size = wallpaper.downloadSize {
             parts.append("Click to download (\(Format.storage(Int64(size)))) and set as your wallpaper")
         }
@@ -303,6 +311,14 @@ struct WallpaperTile: View {
         }
         if let source = wallpaper.source, let page = source.pageURL {
             Button("Open on \(source.provider.name)") { NSWorkspace.shared.open(page) }
+        }
+        if wallpaper.isBuiltInFootage {
+            Divider()
+            Button("More by \(MediaCredits.abstractAuthor) on Pexels") { NSWorkspace.shared.open(MediaCredits.abstractURL) }
+        }
+        if wallpaper.isIncluded {
+            Divider()
+            Button("More on \(MediaCredits.dynamicSource)") { NSWorkspace.shared.open(MediaCredits.dynamicURL) }
         }
         if wallpaper.isRemovable {
             Divider()

@@ -99,6 +99,16 @@ struct AboutPage: View {
 
             SectionLabel("Credits")
             Card {
+                Row(symbol: "sparkles", colors: Theme.magenta, title: "Abstract Videos",
+                    subtitle: "By \(MediaCredits.abstractAuthor) (larchmedia) on Pexels") {
+                    QuietButton(title: "Visit") { NSWorkspace.shared.open(MediaCredits.abstractURL) }
+                }
+                RowDivider()
+                Row(symbol: "sun.horizon.fill", colors: Theme.coral, title: "Dynamic Wallpapers",
+                    subtitle: "From \(MediaCredits.dynamicSource), where you'll find many more") {
+                    QuietButton(title: "Visit") { NSWorkspace.shared.open(MediaCredits.dynamicURL) }
+                }
+                RowDivider()
                 Row(symbol: "photo.fill", colors: Theme.sky, title: "Online Pictures",
                     subtitle: "From Wallhaven, uploaded by its community") {
                     QuietButton(title: "Visit") { NSWorkspace.shared.open(URL(string: "https://wallhaven.cc")!) }
@@ -107,13 +117,6 @@ struct AboutPage: View {
                 Row(symbol: "play.rectangle.fill", colors: Theme.rose, title: "Online Videos",
                     subtitle: "From Pexels, free to use") {
                     QuietButton(title: "Visit") { NSWorkspace.shared.open(URL(string: "https://www.pexels.com")!) }
-                }
-                RowDivider()
-                Row(symbol: "shippingbox.fill", colors: Theme.coral, title: "Built-in Wallpapers",
-                    subtitle: "Each belongs to its original creator") {
-                    QuietButton(title: "Visit") {
-                        NSWorkspace.shared.open(URL(string: "https://github.com/edisadk-pm/macpaper-media")!)
-                    }
                 }
             }
         }

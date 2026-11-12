@@ -6,7 +6,13 @@
 
 Video, dynamic and picture wallpapers for your Mac's desktop and Lock Screen, using as little memory as possible.
 
-<img src="docs/screenshot.png" width="780" alt="The Dynamic tab: built-in dynamic wallpapers, with Dome on the desktop and its pictures for today">
+<p align="center">
+  <a href="https://github.com/edisadk-pm/MacPaperEngine/releases/latest/download/MacPaperEngine.dmg"><img src="docs/download.svg" width="364" alt="Download MacPaperEngine for macOS"></a>
+  <br>
+  <sub>Then drag it onto Applications. <a href="#install">Install help</a> · <a href="https://github.com/edisadk-pm/MacPaperEngine/releases">All releases</a></sub>
+</p>
+
+<img src="docs/videos.png" width="780" alt="The Videos tab: six built-in abstract loops, with Diamond on the desktop">
 
 ## Features
 
@@ -21,6 +27,17 @@ Video, dynamic and picture wallpapers for your Mac's desktop and Lock Screen, us
 - **Low memory**: about 80 MB while playing a 2560×1664 video, against 112 MB with Apple's
   `AVPlayerLooper`, and 37 to 49 MB for a picture ([how](#why-it-uses-so-little-memory)).
 - **Updates itself** from this repository's releases, automatically or only when you say.
+
+<table>
+  <tr>
+    <td><img src="docs/dynamic.png" alt="The Dynamic tab: built-in dynamic wallpapers, with Dome on the desktop and its pictures for today"></td>
+    <td><img src="docs/pictures.png" alt="The Pictures tab: still pictures, with Fuji on the desktop"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Dynamic</b>: pictures that follow the sun or Light and Dark mode</td>
+    <td align="center"><b>Pictures</b>: still images, drawn once</td>
+  </tr>
+</table>
 
 ## Requirements
 

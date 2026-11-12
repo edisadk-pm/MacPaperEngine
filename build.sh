@@ -3,8 +3,10 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-swift build -c release
-BIN="$(swift build -c release --show-bin-path)"
+# One universal app: Apple silicon and Intel.
+ARCHS=(--arch arm64 --arch x86_64)
+swift build -c release "${ARCHS[@]}"
+BIN="$(swift build -c release "${ARCHS[@]}" --show-bin-path)"
 
 APP="build/MacPaperEngine.app"
 ENGINE="$APP/Contents/Library/LoginItems/MacPaperEngine Helper.app"

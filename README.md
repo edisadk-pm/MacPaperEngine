@@ -1,100 +1,75 @@
 # MacPaperEngine
 
-Desktop wallpapers for macOS, built to use as little memory as possible.
+[![Latest release](https://img.shields.io/github/v/release/edisadk-pm/MacPaperEngine)](https://github.com/edisadk-pm/MacPaperEngine/releases/latest)
+[![Requires macOS 14 or later](https://img.shields.io/badge/macOS-14%2B-blue)](#requirements)
+[![License](https://img.shields.io/github/license/edisadk-pm/MacPaperEngine)](LICENSE)
 
-Three kinds, each with its own tab:
+Video, dynamic and picture wallpapers for your Mac's desktop and Lock Screen, using as little memory as possible.
+
+<img src="docs/screenshot.png" width="780" alt="The Dynamic tab: built-in dynamic wallpapers, with Dome on the desktop and its pictures for today">
+
+## Features
 
 - **Videos**: six abstract loops built in, plus your own videos and GIFs. Loops restart without a
   visible jump.
-- **Dynamic**: pictures that change with the sun or with Light and Dark mode, like macOS's own.
-  Five come with MacPaperEngine (Alps, Fuji, Cyprus, Dome, Fletschhorn), and you can add your own
-  `.heic` files.
-- **Pictures**: still images, drawn once and costing no power while shown.
+- **Dynamic wallpapers**: pictures that change with the sun or with Light and Dark mode, like
+  macOS's own. Five are built in, and you can add your own `.heic` files.
+- **Pictures**: still images, drawn once and using no power while shown.
+- **Online**: browse [Wallhaven](https://wallhaven.cc) for pictures and
+  [Pexels](https://www.pexels.com) for videos, and set one in a click.
+- **Lock Screen**: the same wallpaper on the Lock Screen.
+- **Low memory**: about 80 MB while playing a 2560×1664 video, against 112 MB with Apple's
+  `AVPlayerLooper`, and 37 to 49 MB for a picture ([how](#why-it-uses-so-little-memory)).
+- **Updates itself** from this repository's releases, automatically or only when you say.
 
-The built-in clips and dynamic wallpapers aren't inside the app, which is about 7 MB. Each one
-downloads from [macpaper-media](https://github.com/edisadk-pm/macpaper-media/releases) the first
-time you pick it (60 to 240 MB for a clip), then stays on your Mac.
+## Requirements
 
-**Online** browses Wallhaven for pictures and Pexels for videos, and downloads and applies one in
-a click. Wallpapers show behind your desktop icons and on the Lock Screen. On the desktop MacPaperEngine
-draws above your system wallpaper, which reappears when it stops.
+- macOS 14 Sonoma or later
+- A Mac with Apple silicon or an Intel processor (the app is universal)
 
 ## Install
 
-Download `MacPaperEngine.zip` from the
-[latest release](https://github.com/edisadk-pm/MacPaperEngine/releases/latest), unzip it and move
-`MacPaperEngine.app` to `/Applications`. Do this before turning on **Start Wallpaper at Login**,
-because the login item points at the app's current location.
+### Disk image
 
-The app isn't notarized, so the first time macOS says it can't check it. Open **System Settings >
-Privacy & Security** and click **Open Anyway** next to MacPaperEngine. Only that first launch asks.
+1. Download **[MacPaperEngine.dmg](https://github.com/edisadk-pm/MacPaperEngine/releases/latest/download/MacPaperEngine.dmg)**.
+2. Open it and drag **MacPaperEngine** onto **Applications**.
+3. Open MacPaperEngine from your Applications folder.
 
-## Updates
+The first time, macOS says it can't verify the app, because MacPaperEngine isn't notarized by
+Apple. Close that message, open **System Settings > Privacy & Security**, scroll down to
+**Security** and click **Open Anyway** next to MacPaperEngine, then confirm. macOS only asks once.
 
-MacPaperEngine updates itself from this repository's
-[releases](https://github.com/edisadk-pm/MacPaperEngine/releases). The first time you open it, a
-sheet says so and asks how far it should go:
+### Terminal
 
-| Choice | Does |
-| --- | --- |
-| **Automatic** (recommended) | Checks each time you open the window, downloads a new version in the background, and installs it when you close the window |
-| **Ask First** | Checks each time you open the window, and asks before downloading |
-| **Manual** | Looks only when you choose **MacPaperEngine > Check for Updates…** |
-
-You can change it later in **General > Updates**. Before a download is kept, it's checked against
-the SHA-256 checksum published with the release, the app's bundle identifier, the version and the
-code signature. When it's ready, the sidebar says so and offers **Restart Now**; otherwise it's
-swapped in when you close the window, and the wallpaper is back within a second or two. The next
-time you open the app, the sidebar says what's new.
-
-Only copies in an `Applications` folder update. A build run from `build/`, or against a test library
-with `MACPAPER_HOME`, never does, unless `MACPAPER_UPDATE_FEED` points it at a test feed. Its update
-settings are then kept apart from the installed app's.
-
-## Build and run
-
-Requires macOS 14 or later and Xcode.
+Or paste this into Terminal:
 
 ```sh
-./build.sh
-open build/MacPaperEngine.app
+curl -fsSL https://raw.githubusercontent.com/edisadk-pm/MacPaperEngine/main/install.sh | bash
 ```
 
-### Releasing
+[The script](install.sh) downloads the latest release, checks it against the SHA-256 checksum
+published with it and its code signature, installs it in `/Applications` (or `~/Applications` if
+you can't write there) and opens it. Files downloaded this way aren't marked as coming from the
+internet, so macOS doesn't ask about it. Running it again updates an existing copy.
 
-Add a section for the new version at the top of [CHANGELOG.md](CHANGELOG.md), commit, then:
+## Getting started
 
-```sh
-Packaging/release.sh 1.2.0
-```
+1. Open **MacPaperEngine**. The first time, it asks how it should handle [updates](#updates).
+2. Click a wallpaper on **Videos**, **Dynamic** or **Pictures**. A built-in downloads the first
+   time you pick it (3 to 245 MB), then stays on your Mac. It appears on your desktop, behind your
+   icons.
+3. Close the window. The wallpaper keeps running: a small background engine draws it, and the
+   window's memory goes back to the system.
+4. To have the wallpaper come back after a restart, turn on **General > Start Wallpaper at Login**.
 
-The section is the release notes on GitHub and **What's New** on the app's About page; its first
-paragraph is the line the sidebar shows after updating. The script refuses a version without one,
-and needs a clean working tree. It sets the version in both `Info.plist`s, builds, zips
-`MacPaperEngine.app` with its checksum, commits "Release 1.2.0", tags `v1.2.0`, pushes and
-creates the GitHub release. Installed copies pick it up the next time they're opened.
-
-### Built-in media
-
-The full clips and dynamic wallpapers live in `Media/`, which git ignores, and in the
-`media-1` release of [macpaper-media](https://github.com/edisadk-pm/macpaper-media). The app ships
-only `Resources/*/catalog.json` and small previews. After changing `Media/`:
-
-```sh
-Packaging/make-previews.sh      # previews and file sizes for the catalogs
-gh release upload media-1 Media/Footage/*.mp4 Media/Dynamic/*.heic \
-    --repo edisadk-pm/macpaper-media --clobber
-```
-
-`MACPAPER_MEDIA_URL=file:///path/to/folder/` makes a development build download from a local
-folder instead.
+To stop the wallpaper, choose **Stop Wallpaper** from the menu bar icon, or press ⌥⌘Q in the app.
+On the desktop, MacPaperEngine draws above your system wallpaper, which reappears when it stops.
 
 ## Using the app
 
 The window works like System Settings: a sidebar you can hide (⌃⌘S), Back and Forward in the
-toolbar, and each page's actions next to its title. Add sits in the toolbar on the library tabs,
-and Online puts its Pictures/Videos switch and search there. The window has a fixed width and can
-be made taller.
+toolbar, and each page's actions next to its title. The window has a fixed width and can be made
+taller.
 
 | Shortcut | Does |
 | --- | --- |
@@ -107,13 +82,11 @@ be made taller.
 | ⌘, | Settings |
 | ⌥⌘Q | Quit and stop the wallpaper too. Plain ⌘Q leaves the wallpaper running. |
 
-**About** (also **MacPaperEngine > About MacPaperEngine**) shows the version, What's New for it
-and earlier versions, and credits.
-
 The **Wallpaper** menu also turns the wallpaper off, jumps to the one showing, removes it, and
-switches Play on Lock Screen and Hide Loop Jump.
+switches Play on Lock Screen and Hide Loop Jump. **About** (also **MacPaperEngine > About
+MacPaperEngine**) shows the version, what's new in it, and credits.
 
-## Adding wallpapers
+### Adding your own wallpapers
 
 Click **Add** on any library tab, drop files anywhere in the window, or drag them onto the Dock
 icon. Each file goes to the tab it belongs in:
@@ -126,8 +99,8 @@ icon. Each file goes to the tab it belongs in:
 | JPEG, PNG, HEIC and other still images | Pictures |
 
 To remove something you added or downloaded, hover over it and click the **×** in its corner, or
-right-click it. MacPaperEngine asks first, and deletes only its own copy: the file you added from your
-Mac stays where it was. Built-ins can't be removed, but right-clicking one offers **Remove
+right-click it. MacPaperEngine asks first, and deletes only its own copy: the file you added from
+your Mac stays where it was. Built-ins can't be removed, but right-clicking one offers **Remove
 Download** to free its space, and **General > Downloaded Built-ins > Remove Unused** clears every
 one that isn't on screen. They download again when picked.
 
@@ -139,9 +112,10 @@ cleanly.
 Dynamic wallpapers that follow the sun judge its position from your time zone's reference city in
 `/usr/share/zoneinfo/zone.tab`, so no location access is needed. Files that only describe sunrise
 run the same pictures in reverse at sunset, and two-picture day-and-night files switch at sunrise
-and sunset whatever hours they were saved with.
+and sunset whatever hours they were saved with. [Dynamic Wallpaper Club](https://dynamicwallpaper.club)
+has many more.
 
-## Online
+### Online
 
 - **Pictures** come from [Wallhaven](https://wallhaven.cc), with no account needed. Only images
   marked safe for work are requested. They're uploaded by Wallhaven's community under mixed
@@ -153,7 +127,7 @@ and sunset whatever hours they were saved with.
 Only the window process goes online, for browsing, built-in downloads and updates. The engine
 never does.
 
-## Lock Screen
+### Lock Screen
 
 macOS draws the Lock Screen itself and hides every app's windows there, so a desktop app can't
 appear on it. **Displays > Play on Lock Screen** registers your video as an Aerial in your own
@@ -165,20 +139,40 @@ This changes your system wallpaper while it's on. Turning it off restores your p
 which is kept in `SystemWallpaperBackup.plist` in the app's data folder
 (`~/Library/Application Support/MacPaper`).
 
-It isn't a public API. macOS refreshes its Aerial list periodically, which MacPaperEngine detects and
-repairs, but a major macOS update could break it.
+It isn't a public API. macOS refreshes its Aerial list periodically, which MacPaperEngine detects
+and repairs, but a major macOS update could break it.
 
-## Credits
+## Updates
 
-- The six abstract video loops are by [Colin Jones (larchmedia)](https://www.pexels.com/@larchmedia/)
-  on Pexels, who makes two-minute abstract loops for backgrounds.
-- The five dynamic wallpapers come from [Dynamic Wallpaper Club](https://dynamicwallpaper.club),
-  where you'll find many more. The app's Dynamic tab links there.
-- Online pictures come from [Wallhaven](https://wallhaven.cc) and online videos from
-  [Pexels](https://www.pexels.com).
+MacPaperEngine updates itself from this repository's
+[releases](https://github.com/edisadk-pm/MacPaperEngine/releases). The first time you open it, it
+asks how far it should go:
 
-The app credits them on the Videos and Dynamic tabs, in each built-in's tooltip and right-click
-menu, and on the About page.
+| Choice | Does |
+| --- | --- |
+| **Automatic** (recommended) | Checks each time you open the window, downloads a new version in the background, and installs it when you close the window |
+| **Ask First** | Checks each time you open the window, and asks before downloading |
+| **Manual** | Looks only when you choose **MacPaperEngine > Check for Updates…** |
+
+You can change it later in **General > Updates**. Before a download is kept, it's checked against
+the SHA-256 checksum published with the release, the app's bundle identifier, the version and the
+code signature. When it's ready, the sidebar offers **Restart Now**; otherwise it's swapped in when
+you close the window, and the wallpaper is back within a second or two. Only copies in an
+`Applications` folder update themselves. What changed in each version is in
+[CHANGELOG.md](CHANGELOG.md) and on the app's About page.
+
+## Uninstall
+
+1. In MacPaperEngine, turn off **Displays > Play on Lock Screen** if it's on, so your previous
+   system wallpaper comes back, and turn off **General > Start Wallpaper at Login**.
+2. Press ⌥⌘Q to quit and stop the wallpaper.
+3. Move MacPaperEngine from Applications to the Trash.
+4. To remove your library and settings too, run:
+
+   ```sh
+   rm -rf ~/Library/Application\ Support/MacPaper
+   defaults delete app.macpaper.MacPaper
+   ```
 
 ## Why it uses so little memory
 
@@ -211,3 +205,63 @@ Measured on an M2 MacBook Air, engine plus macOS's decoder helper, while playing
 
 macOS decodes video in a separate process, which Activity Monitor lists as `VTDecoderXPCService`.
 Count it when comparing. The Stats page in the app includes it.
+
+## Credits
+
+- The six abstract video loops are by [Colin Jones (larchmedia)](https://www.pexels.com/@larchmedia/)
+  on Pexels, who makes two-minute abstract loops for backgrounds.
+- The five dynamic wallpapers come from [Dynamic Wallpaper Club](https://dynamicwallpaper.club),
+  where you'll find many more.
+- Online pictures come from [Wallhaven](https://wallhaven.cc) and online videos from
+  [Pexels](https://www.pexels.com).
+
+The app credits them on the Videos and Dynamic tabs, in each built-in's tooltip and right-click
+menu, and on the About page.
+
+## Building from source
+
+Requires macOS 14 or later and Xcode 26 or later (the app icon is an Icon Composer file).
+
+```sh
+./build.sh
+open build/MacPaperEngine.app
+```
+
+`build.sh` makes a universal `build/MacPaperEngine.app`, ad-hoc signed. A build run from `build/`
+never updates itself. For testing, `MACPAPER_HOME=/path/to/folder` runs the app against a throwaway
+library, `MACPAPER_UPDATE_FEED` points the updater at another release feed, and
+`MACPAPER_MEDIA_URL=file:///path/to/folder/` downloads the built-ins from a local folder.
+
+### Releasing
+
+Add a section for the new version at the top of [CHANGELOG.md](CHANGELOG.md), commit, then:
+
+```sh
+Packaging/release.sh 1.2.0
+```
+
+The section becomes the release notes on GitHub and **What's New** on the app's About page; its
+first paragraph is the line the sidebar shows after updating. The script refuses a version without
+one, and needs a clean working tree. It sets the version in both `Info.plist`s, builds, zips the
+app with its checksum (what the updater and `install.sh` download), makes the disk image with
+`Packaging/make-dmg.sh`, commits "Release 1.2.0", tags `v1.2.0`, pushes and creates the GitHub
+release. The disk image's layout is written by [dmgbuild](https://github.com/dmgbuild/dmgbuild),
+which `make-dmg.sh` installs into `build/` the first time.
+
+### Built-in media
+
+The full clips and dynamic wallpapers live in `Media/`, which git ignores, and in the
+`media-1` release of [macpaper-media](https://github.com/edisadk-pm/macpaper-media). The app ships
+only `Resources/*/catalog.json` and small previews. After changing `Media/`:
+
+```sh
+Packaging/make-previews.sh
+gh release upload media-1 Media/Footage/*.mp4 Media/Dynamic/*.heic \
+    --repo edisadk-pm/macpaper-media --clobber
+```
+
+`make-previews.sh` regenerates the previews and the file sizes in the catalogs.
+
+## License
+
+[MIT](LICENSE) © 2026 Edi Sadikaj

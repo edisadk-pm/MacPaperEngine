@@ -606,11 +606,23 @@ final class AppModel: ObservableObject {
 
     /// The login item is registered by path, so moving or renaming the app breaks it. Whether
     /// it should start at login is remembered, and the registration redone when it went missing.
+    /// macOS keeps one login item per bundle identifier, pointing at whichever copy registered it
+    /// last. So only the installed copy looks after it: a development build or a test library
+    /// must never take it over.
+    private var isInstalledCopy: Bool {
+        ProcessInfo.processInfo.environment["MACPAPER_HOME"] == nil
+            && Bundle.main.bundleURL.deletingLastPathComponent().lastPathComponent == "Applications"
+    }
+
     private func restoreLoginItem() {
+        guard isInstalledCopy else { return }
         let defaults = UserDefaults.standard
         switch loginService.status {
         case .enabled:
             defaults.set(true, forKey: Self.startAtLoginKey)
+            // Registering again points the login item back at this copy, in case another copy
+            // of the app registered it since.
+            try? loginService.register()
         case .notRegistered, .notFound:
             guard defaults.bool(forKey: Self.startAtLoginKey) else { return }
             try? loginService.register()

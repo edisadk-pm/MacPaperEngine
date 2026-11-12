@@ -4,6 +4,16 @@ Each version's section is shown on the app's About page and used as its GitHub r
 add one before running `Packaging/release.sh`. The first paragraph is the summary the sidebar
 shows after updating.
 
+## 1.2.0 — 12 November 2026
+
+Easier to install, on Intel Macs too, and credits for the people behind the built-in wallpapers.
+
+- **Disk image**: download MacPaperEngine.dmg, open it and drag the app onto Applications.
+- **One-line install**: or paste a single command into Terminal, which installs MacPaperEngine and opens it, with no security prompt.
+- **Intel Macs**: MacPaperEngine now runs on Intel Macs as well as Apple silicon.
+- **Credits**: the abstract videos are by Colin Jones on Pexels, and the dynamic wallpapers come from Dynamic Wallpaper Club. Each is credited on its tab, in its tooltip and on the About page.
+- **Find more**: a new tile on the Dynamic tab leads to Dynamic Wallpaper Club for more.
+
 ## 1.1.0 — 10 November 2026
 
 The first public release.

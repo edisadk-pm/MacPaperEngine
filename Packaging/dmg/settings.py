@@ -10,8 +10,9 @@ files = [app]
 symlinks = {"Applications": "/Applications"}
 
 background = defines["background"]
-# The frame, title bar included.
-window_rect = ((200, 140), (600, 412))
+# The frame, title bar included. Tall enough for the stamps at the bottom of the background to show
+# whole, even with Finder's path bar.
+window_rect = ((200, 120), (600, 480))
 default_view = "icon-view"
 icon_size = 112
 text_size = 13

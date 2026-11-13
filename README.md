@@ -7,9 +7,9 @@
 Video, dynamic and picture wallpapers for your Mac's desktop and Lock Screen, using as little memory as possible.
 
 <p align="center">
-  <a href="https://github.com/edisadk-pm/MacPaperEngine/releases/latest/download/MacPaperEngine.dmg"><img src="docs/download.svg" width="364" alt="Download MacPaperEngine for macOS"></a>
+  <a href="https://github.com/edisadk-pm/MacPaperEngine/releases/latest/download/MacPaperEngine.dmg"><img src="docs/download.svg" width="422" alt="Download MacPaperEngine.dmg"></a>
   <br>
-  <sub>Then drag it onto Applications. <a href="#install">Install help</a> · <a href="https://github.com/edisadk-pm/MacPaperEngine/releases">All releases</a></sub>
+  <sub>Free · macOS 14 or later · Apple silicon and Intel<br>Then drag it onto Applications. <a href="#install">Install help</a> · <a href="https://github.com/edisadk-pm/MacPaperEngine/releases">All releases</a></sub>
 </p>
 
 <img src="docs/videos.png" width="780" alt="The Videos tab: six built-in abstract loops, with Diamond on the desktop">
